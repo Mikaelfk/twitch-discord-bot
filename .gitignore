@@ -1,0 +1,23 @@
+# binaries
+twitch-discord-bot
+main
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# test binaries
+*.test
+
+# go coverage output
+*.out
+
+# goland stuff
+.idea/
+/build/
+/dist/
+/out/
+*.iml
+*.ipr
+*.iws

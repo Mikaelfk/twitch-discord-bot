@@ -20,17 +20,25 @@ var client *firestore.Client
 // Collection name in Firestore
 var collection = "Subscriptions"
 
+<<<<<<< HEAD
 // Tasks:
 // - Allow selection of individual messages, as opposed to all
 // - Introduce update functionality via PUT and/or PATCH
 // - Adapt addMessage and displayMessage function to support custom JSON schema
+=======
+// Message counter to produce some variation in content
+var ct = 0
 
-// Lists all the messages in the messages collection to the user.
-func displayMessage(w http.ResponseWriter, r *http.Request) {
+// Get all subscriptions in a collection.
+func GetSubscription() []string {
+>>>>>>> Created the GetSubscription function in firestore.go
 
-	iter := client.Collection(collection).Documents(ctx) // Loop through all entries in collection "Subscriptions"
+	// This array stores all the subscriptions
+	var subscriptions []string
 
+	iter := client.Collection(collection).Documents(ctx)
 	for {
+		// Iterates over every document found in the subscriptions collection.
 		doc, err := iter.Next()
 		if err == iterator.Done {
 			break
@@ -38,12 +46,11 @@ func displayMessage(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatalf("Failed to iterate: %v", err)
 		}
-		m := doc.Data() // A message map with string keys. Each key is one field, like "text" or "timestamp"
-		_, err = fmt.Fprintln(w, m)
-		if err != nil {
-			http.Error(w, "Error while writing response body.", http.StatusInternalServerError)
-		}
+		m := doc.Data()
+		// Appends every stream name entry to the subscriptions slice.
+		subscriptions = append(subscriptions, m["streamer_name"].(string))
 	}
+	return subscriptions
 }
 
 // Reads a string from the body in plain-text and sends it to firestore to be registered as a message.
@@ -92,8 +99,24 @@ func deleteMessage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+<<<<<<< HEAD
 func InitDB() {
 
+=======
+/* Handler for all message-related operations
+func handleMessage(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		addMessage(w, r)
+	case http.MethodDelete:
+		deleteMessage(w, r)
+	default:
+		http.Error(w, "Unsupported request method", http.StatusMethodNotAllowed)
+	}
+}
+*/
+func InitDB() {
+>>>>>>> Created the GetSubscription function in firestore.go
 	// Firebase initialisation
 	ctx = context.Background()
 
@@ -110,5 +133,9 @@ func InitDB() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+<<<<<<< HEAD
 	// defer client.Close()
+=======
+	//defer client.Close()
+>>>>>>> Created the GetSubscription function in firestore.go
 }

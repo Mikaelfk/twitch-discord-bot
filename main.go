@@ -13,9 +13,6 @@ import (
 
 // Bot variable
 var (
-	// store config ciles
-	Config util.Configuration
-
 	// array with command definitions
 	commandDefinitions = []discordgo.ApplicationCommand{}
 
@@ -28,16 +25,16 @@ var session *discordgo.Session
 
 // try to load config
 func init() {
-	err := util.LoadConfig(&Config)
+	err := util.LoadConfig()
 	if err != nil {
-		log.Fatalf("Invalid bot parameters: %v", err)
+		log.Fatalf("Unable to load config: %v", err)
 	}
 }
 
 // create session
 func init() {
 	var err error
-	session, err = discordgo.New("Bot " + Config.DiscordBotToken)
+	session, err = discordgo.New("Bot " + util.Config.DiscordBotToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
@@ -48,6 +45,7 @@ func init() {
 func registerCommands() {
 	// register commands
 	command.RegisterPing(&commandDefinitions, commandHandlers)
+	command.RegisterPang(&commandDefinitions, commandHandlers)
 
 	// add a handler for handling commands
 	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -73,7 +71,7 @@ func main() {
 	// register slash-commands
 	for _, v := range commandDefinitions {
 		// try to register command
-		_, err := session.ApplicationCommandCreate(session.State.User.ID, Config.DiscordServerID, &v)
+		_, err := session.ApplicationCommandCreate(session.State.User.ID, util.Config.DiscordServerID, &v)
 		// if not log error
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)

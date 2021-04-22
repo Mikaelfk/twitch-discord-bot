@@ -10,24 +10,24 @@ import (
 
 var (
 	// define name and description for command
-	pingCommand = discordgo.ApplicationCommand{
-		Name:        "ping",
-		Description: "will pong you",
+	pangCommand = discordgo.ApplicationCommand{
+		Name:        "pang",
+		Description: "will pang you",
 	}
 
 	// define commandHandler for this command
-	pingCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	pangCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionApplicationCommandResponseData{
-				Content: "pong",
+				Content: "boom",
 			},
 		})
 	}
 )
 
 // function for registering command for the bot to serve
-func RegisterPing(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
-	*commands = append(*commands, pingCommand)
-	commandHandlers["ping"] = pingCommandHandler
+func RegisterPang(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
+	*commands = append(*commands, pangCommand)
+	commandHandlers["pang"] = pangCommandHandler
 }

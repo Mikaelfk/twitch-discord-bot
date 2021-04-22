@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"twitch-discord-bot/command"
+	"twitch-discord-bot/db"
 	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
@@ -26,6 +27,7 @@ var session *discordgo.Session
 // try to load config
 func init() {
 	err := util.LoadConfig()
+	db.InitDB()
 	if err != nil {
 		log.Fatalf("Unable to load config: %v", err)
 	}

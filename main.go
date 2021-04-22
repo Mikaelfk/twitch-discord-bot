@@ -1,23 +1,20 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
 	"os/signal"
 
 	"twitch-discord-bot/command"
+	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-// Bot parameters
+// Bot variable
 var (
-	// guild (server) to register commands in
-	GuildID = flag.String("g", "833404821809266708", "Guild ID to register commands in (must have permissions there)")
-
-	// bot token
-	BotToken = flag.String("t", "", "Bot access token")
+	// store config ciles
+	Config util.Configuration
 
 	// array with command definitions
 	commandDefinitions = []discordgo.ApplicationCommand{}
@@ -27,17 +24,20 @@ var (
 )
 
 // bot session
-var s *discordgo.Session
+var session *discordgo.Session
 
-// read command line flags
+// try to load config
 func init() {
-	flag.Parse()
+	err := util.LoadConfig(&Config)
+	if err != nil {
+		log.Fatalf("Invalid bot parameters: %v", err)
+	}
 }
 
 // create session
 func init() {
 	var err error
-	s, err = discordgo.New("Bot " + *BotToken)
+	session, err = discordgo.New("Bot " + Config.DiscordToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
@@ -50,7 +50,7 @@ func registerCommands() {
 	command.RegisterPing(&commandDefinitions, commandHandlers)
 
 	// add a handler for handling commands
-	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		// if command is in commandHandlers map, call handler function
 		if handlerFunc, ok := commandHandlers[i.Data.Name]; ok {
 			handlerFunc(s, i)
@@ -60,12 +60,12 @@ func registerCommands() {
 
 func main() {
 	// just log that bot is running
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is up!")
+	session.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Println("Bot is up (:")
 	})
 
 	// open session to discord
-	err := s.Open()
+	err := session.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
@@ -73,7 +73,7 @@ func main() {
 	// register slash-commands
 	for _, v := range commandDefinitions {
 		// try to register command
-		_, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, &v)
+		_, err := session.ApplicationCommandCreate(session.State.User.ID, Config.ServerID, &v)
 		// if not log error
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
@@ -81,7 +81,7 @@ func main() {
 	}
 
 	// close session when bot is stopeed
-	defer s.Close()
+	defer session.Close()
 
 	// graceful shutdown when Interrupting
 	stop := make(chan os.Signal, 1)

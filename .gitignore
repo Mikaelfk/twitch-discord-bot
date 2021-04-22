@@ -21,3 +21,6 @@ main
 *.iml
 *.ipr
 *.iws
+
+# config
+config.json

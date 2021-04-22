@@ -24,3 +24,6 @@ main
 
 # config
 config.json
+
+#firestore private key
+service-account.json

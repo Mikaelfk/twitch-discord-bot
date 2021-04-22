@@ -57,6 +57,7 @@ func AddSubscription(streamer_name string, channel_id string) {
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println("\nsomething went wrong")
+
 	}
 }
 
@@ -92,6 +93,7 @@ func deleteMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func InitDB() {
+
 	// Firebase initialisation
 	ctx = context.Background()
 
@@ -102,7 +104,8 @@ func InitDB() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	client, _ = app.Firestore(ctx)
+
+	client, err = app.Firestore(ctx)
 
 	if err != nil {
 		log.Fatalln(err)

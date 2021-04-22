@@ -20,18 +20,8 @@ var client *firestore.Client
 // Collection name in Firestore
 var collection = "Subscriptions"
 
-<<<<<<< HEAD
-// Tasks:
-// - Allow selection of individual messages, as opposed to all
-// - Introduce update functionality via PUT and/or PATCH
-// - Adapt addMessage and displayMessage function to support custom JSON schema
-=======
-// Message counter to produce some variation in content
-var ct = 0
-
 // Get all subscriptions in a collection.
 func GetSubscription() []string {
->>>>>>> Created the GetSubscription function in firestore.go
 
 	// This array stores all the subscriptions
 	var subscriptions []string
@@ -99,24 +89,7 @@ func deleteMessage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-<<<<<<< HEAD
 func InitDB() {
-
-=======
-/* Handler for all message-related operations
-func handleMessage(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		addMessage(w, r)
-	case http.MethodDelete:
-		deleteMessage(w, r)
-	default:
-		http.Error(w, "Unsupported request method", http.StatusMethodNotAllowed)
-	}
-}
-*/
-func InitDB() {
->>>>>>> Created the GetSubscription function in firestore.go
 	// Firebase initialisation
 	ctx = context.Background()
 
@@ -133,9 +106,5 @@ func InitDB() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-<<<<<<< HEAD
 	// defer client.Close()
-=======
-	//defer client.Close()
->>>>>>> Created the GetSubscription function in firestore.go
 }

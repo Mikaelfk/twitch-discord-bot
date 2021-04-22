@@ -20,17 +20,15 @@ var client *firestore.Client
 // Collection name in Firestore
 var collection = "Subscriptions"
 
-// Tasks:
-// - Allow selection of individual messages, as opposed to all
-// - Introduce update functionality via PUT and/or PATCH
-// - Adapt addMessage and displayMessage function to support custom JSON schema
+// Get all subscriptions in a collection.
+func GetSubscription() []string {
 
-// Lists all the messages in the messages collection to the user.
-func displayMessage(w http.ResponseWriter, r *http.Request) {
+	// This array stores all the subscriptions
+	var subscriptions []string
 
-	iter := client.Collection(collection).Documents(ctx) // Loop through all entries in collection "Subscriptions"
-
+	iter := client.Collection(collection).Documents(ctx)
 	for {
+		// Iterates over every document found in the subscriptions collection.
 		doc, err := iter.Next()
 		if err == iterator.Done {
 			break
@@ -38,12 +36,11 @@ func displayMessage(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatalf("Failed to iterate: %v", err)
 		}
-		m := doc.Data() // A message map with string keys. Each key is one field, like "text" or "timestamp"
-		_, err = fmt.Fprintln(w, m)
-		if err != nil {
-			http.Error(w, "Error while writing response body.", http.StatusInternalServerError)
-		}
+		m := doc.Data()
+		// Appends every stream name entry to the subscriptions slice.
+		subscriptions = append(subscriptions, m["streamer_name"].(string))
 	}
+	return subscriptions
 }
 
 // Reads a string from the body in plain-text and sends it to firestore to be registered as a message.
@@ -93,7 +90,6 @@ func deleteMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func InitDB() {
-
 	// Firebase initialisation
 	ctx = context.Background()
 

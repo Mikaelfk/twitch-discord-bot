@@ -6,9 +6,10 @@ import (
 )
 
 type Configuration struct {
-	DiscordToken string
-	TwitchToken  string
-	ServerID     string
+	DiscordBotToken string
+	DiscordServerID string
+	TwitchClientID  string
+	TwitchAuthToken string
 }
 
 func LoadConfig(config *Configuration) error {

@@ -37,7 +37,7 @@ func init() {
 // create session
 func init() {
 	var err error
-	session, err = discordgo.New("Bot " + Config.DiscordToken)
+	session, err = discordgo.New("Bot " + Config.DiscordBotToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
@@ -73,7 +73,7 @@ func main() {
 	// register slash-commands
 	for _, v := range commandDefinitions {
 		// try to register command
-		_, err := session.ApplicationCommandCreate(session.State.User.ID, Config.ServerID, &v)
+		_, err := session.ApplicationCommandCreate(session.State.User.ID, Config.DiscordServerID, &v)
 		// if not log error
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)

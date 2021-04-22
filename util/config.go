@@ -5,21 +5,24 @@ import (
 	"os"
 )
 
-type Configuration struct {
+// store config ciles
+var Config configuration
+
+type configuration struct {
 	DiscordBotToken string
 	DiscordServerID string
 	TwitchClientID  string
 	TwitchAuthToken string
 }
 
-func LoadConfig(config *Configuration) error {
+func LoadConfig() error {
 	file, err := os.Open("config.json")
 	if err != nil {
 		return err
 	}
 
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(config)
+	err = decoder.Decode(&Config)
 	if err != nil {
 		return err
 	}

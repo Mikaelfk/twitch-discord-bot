@@ -4,15 +4,19 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+//
+// Example command
+//
+
 var (
 	// define name and description for command
-	command = discordgo.ApplicationCommand{
+	pingCommand = discordgo.ApplicationCommand{
 		Name:        "ping",
 		Description: "will pong you",
 	}
 
 	// define commandHandler for this command
-	commandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	pingCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionApplicationCommandResponseData{
@@ -24,6 +28,6 @@ var (
 
 // function for registering command for the bot to serve
 func RegisterPing(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
-	*commands = append(*commands, command)
-	commandHandlers["ping"] = commandHandler
+	*commands = append(*commands, pingCommand)
+	commandHandlers["ping"] = pingCommandHandler
 }

@@ -3,7 +3,6 @@ package db
 import (
 	"context" // State handling across API boundaries; part of native GoLang API
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -20,9 +19,6 @@ var client *firestore.Client
 
 // Collection name in Firestore
 var collection = "Subscriptions"
-
-// Message counter to produce some variation in content
-var ct = 0
 
 // Tasks:
 // - Allow selection of individual messages, as opposed to all
@@ -51,28 +47,16 @@ func displayMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 // Reads a string from the body in plain-text and sends it to firestore to be registered as a message.
-func addMessage(w http.ResponseWriter, r *http.Request) {
-	text, err := ioutil.ReadAll(r.Body) // very generic way of reading body; should be customized to specific use case
+func AddSubscription(streamer_name string, channel_id string) {
+
+	_, _, err := client.Collection("Subscriptions").Add(ctx, map[string]interface{}{
+		"streamer_name": streamer_name,
+		"channel_id":    channel_id,
+	})
+
 	if err != nil {
-		http.Error(w, "Reading of payload failed", http.StatusInternalServerError)
-	}
-	fmt.Println("Received message ", string(text))
-	if len(string(text)) == 0 {
-		http.Error(w, "Your message appears to be empty. Ensure to terminate URI with /.", http.StatusBadRequest)
-	} else {
-		id, _, err := client.Collection("messages").Add(ctx,
-			map[string]interface{}{
-				"text": string(text),
-				"ct":   ct,
-				"time": firestore.ServerTimestamp,
-			})
-		ct++
-		if err != nil {
-			http.Error(w, "Error when adding message "+string(text), http.StatusBadRequest)
-		} else {
-			fmt.Println("Entry added to collection.")
-			http.Error(w, id.ID, http.StatusCreated) // Returns document ID
-		}
+		fmt.Println(err)
+		fmt.Println("\nsomething went wrong")
 	}
 }
 
@@ -107,21 +91,7 @@ func deleteMessage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Handler for all message-related operations
-func handleMessage(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		addMessage(w, r)
-	case http.MethodGet:
-		displayMessage(w, r)
-	case http.MethodDelete:
-		deleteMessage(w, r)
-	default:
-		http.Error(w, "Unsupported request method", http.StatusMethodNotAllowed)
-	}
-}
-
-func initDB() {
+func InitDB() {
 	// Firebase initialisation
 	ctx = context.Background()
 
@@ -132,11 +102,10 @@ func initDB() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	client, err = app.Firestore(ctx)
+	client, _ = app.Firestore(ctx)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer client.Close()
+	// defer client.Close()
 }

@@ -41,6 +41,7 @@ func GetSubscription(streamer string, channelId string) (string, string, error) 
 		m := doc.Data()
 
 		// Checks if both the streamer field and the channel id field matches the input
+		// This is somewhat unecessary as the iterator only iterates through documents where both instances occur
 		if m["streamer_name"].(string) == streamer && m["channel_id"].(string) == channelId {
 			return m["streamer_name"].(string), m["channel_id"].(string), nil
 		}

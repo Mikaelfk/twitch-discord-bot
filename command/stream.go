@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"net/http"
 	"strconv"
 	"twitch-discord-bot/util"
 )
@@ -33,8 +34,7 @@ var (
 
 		// TODO: 
 		var channel twitchChannels
-		_ = util.HandleRequest("https://api.twitch.tv/helix/search/channels?query=pokimane", "GET", &channel)
-
+		_ = util.HandleRequest("https://api.twitch.tv/helix/search/channels?query=pokimane", http.MethodGet, &channel)
 
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -45,7 +45,7 @@ var (
 	}
 )
 
-// function for registering command for the bot to serve
+// RegisterStream function for registering command for the bot to serve
 func RegisterStream(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, streamCommand)
 	commandHandlers["stream"] = streamCommandHandler

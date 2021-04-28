@@ -8,21 +8,30 @@ import (
 
 // HandleRequest handles a request to the twitch API by the given URL and the specified rest-method 'method' ("POST", "GET")
 // and decodes the response into the specified resType interface. This is so that you can decide what type-struct you want for each request.
+// Note: even if this method returns nil, it does not guarantee it decoded correctly into the specified resType. Remember to do extra checks for this.
 func HandleRequest(URL string, method string, resType interface{}) error {
 
-
-	if method != "GET" && method != "POST" {
-		return errors.New("invalid method") //TODO: make 'method' constant?
+	// only valid methods allowed. Can add more methods later if need be
+	if method != http.MethodGet && method != http.MethodPost && method != http.MethodPatch && method != http.MethodDelete {
+		return errors.New("invalid method")
 	}
 
-
 	client := &http.Client{}
-	req, _ := http.NewRequest(method, URL, nil)
+	req, err := http.NewRequest(method, URL, nil)
+	if err != nil {
+		return err
+	}
+
+	// set the headers so that the twitch API accepts the request
 	req.Header.Set("client-id", Config.TwitchClientID)
 	req.Header.Set("Authorization", "Bearer "+Config.TwitchAuthToken)
-	res, _ := client.Do(req)
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
 
-	json.NewDecoder(res.Body).Decode(&resType)
+	err = json.NewDecoder(res.Body).Decode(&resType)
 
-	return nil
+	// returns the error, which is nil if everything is ok. However, this doesn't mean that the resType actually has the desired data (additional checks needed).
+	return err
 }

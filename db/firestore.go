@@ -21,7 +21,7 @@ var client *firestore.Client
 var collection = "Subscriptions"
 
 // Get all subscriptions in a collection.
-func GetSubscription() []string {
+func GetSubscriptions() []string {
 
 	// This array stores all the subscriptions
 	var subscriptions []string

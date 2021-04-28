@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
-	"strings"
 
 	"cloud.google.com/go/firestore"   // Firestore-specific support
 	firebase "firebase.google.com/go" // Generic firebase support
@@ -74,50 +72,43 @@ func GetSubscriptions() []string {
 	return subscriptions
 }
 
-// Reads a string from the body in plain-text and sends it to firestore to be registered as a message.
-func AddSubscription(streamer_name string, channel_id string) {
+// Gets the streamer name and discord channel id as parameters and adds a subscription to the firestore
+func addSubscription(streamer_name string, channel_id string) error {
 
-	_, _, err := client.Collection("Subscriptions").Add(ctx, map[string]interface{}{
+	_, _, err := client.Collection(collection).Add(ctx, map[string]interface{}{
 		"streamer_name": streamer_name,
 		"channel_id":    channel_id,
 	})
 
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println("\nsomething went wrong")
-
+		log.Printf("An error has occurred: %s", err)
+		return err
 	}
+	return nil
 }
 
-// Deletes an individual or all messages from firestore
-func deleteMessage(w http.ResponseWriter, r *http.Request) {
+// Deletes a subscription from the firestore
+func deleteSubscription(streamer_name string, channel_id string) error {
+	// Get a collection where the streamer name and channel id are identical to the parameters
+	iter := client.Collection(collection).Where("streamer_name", "==", streamer_name).Where("channel_id", "==", channel_id).Documents(ctx)
 
-	// extract message ID from URL
-	elem := strings.Split(r.URL.Path, "/")
-	messageId := elem[2]
-
-	// Delete individual message based on reference
-	if len(messageId) != 0 {
-		_, err := client.Collection(collection).Doc(messageId).Delete(ctx)
-		if err != nil {
-			http.Error(w, "Deletion of "+messageId+" failed.", http.StatusInternalServerError)
+	// Iterate through the collection found
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
 		}
-		http.Error(w, "Deletion of "+messageId+" successful.", http.StatusNoContent)
-	} else {
-		// Delete all messages
-		it := client.Collection(collection).Documents(ctx)
-		for {
-			item, err := it.Next()
-			if err == iterator.Done {
-				break
-			}
-			_, err = item.Ref.Delete(ctx)
-			if err != nil {
-				http.Error(w, "Deletion of item "+item.Ref.ID+" failed.", http.StatusInternalServerError)
-			}
-			http.Error(w, "Messages deleted.", http.StatusNoContent)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// Deletes the document
+		_, err = client.Collection(collection).Doc(doc.Ref.ID).Delete(ctx)
+		if err != nil {
+			log.Printf("An error has occurred: %s", err)
+			return err
 		}
 	}
+	return nil
 }
 
 func InitDB() {

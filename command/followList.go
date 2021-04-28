@@ -1,7 +1,8 @@
 package command
 
 import (
-	"fmt"
+	"log"
+	"twitch-discord-bot/twitchAPI"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -36,7 +37,8 @@ var (
 		s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 			Content: "hey",
 		})
-		fmt.Println(i.Data.Options[0].Value)
+		twitchAPI.GetFollowList("ukhureaper")
+		log.Println(i.Data.Options[0].Value)
 	}
 )
 

@@ -1,6 +1,8 @@
 package command
 
 import (
+	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -11,7 +13,7 @@ import (
 var (
 	// define name and description for command
 	followListCommand = discordgo.ApplicationCommand{
-		Name:        "follow list",
+		Name:        "follow-list",
 		Description: "gives a list of all streamers a user follows",
 		Options: []*discordgo.ApplicationCommandOption{
 			{
@@ -31,11 +33,15 @@ var (
 				Content: "pong",
 			},
 		})
+		s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+			Content: "hey",
+		})
+		fmt.Println(i.Data.Options[0].Value)
 	}
 )
 
 // function for registering command for the bot to serve
 func RegisterFollowList(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, followListCommand)
-	commandHandlers["follow list"] = followListCommandHandler
+	commandHandlers["follow-list"] = followListCommandHandler
 }

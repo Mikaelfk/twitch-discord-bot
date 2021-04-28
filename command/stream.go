@@ -12,10 +12,14 @@ import (
 //
 
 
+var commandWord = "stream"
+
 var (
+
+
 	// define name and description for command
 	streamCommand = discordgo.ApplicationCommand{
-		Name:        "stream",
+		Name:        commandWord,
 		Description: "will get info about stream",
 		Options: []*discordgo.ApplicationCommandOption{{
 
@@ -37,46 +41,48 @@ var (
 		var channels util.TwitchChannels
 
 		// Search by name
-		URL := constants.URL_TWITCH_CHANNEL_NAME + i.Data.Options[0].StringValue()
+		URL := constants.UrlTwitchChannelName + i.Data.Options[0].StringValue()
 		err = util.HandleRequest(URL, http.MethodGet, &channels)
 
 		if err!= nil {
-			DiscordBotResponder("Something went wrong...", s, i)
+			util.DiscordBotResponder("Something went wrong...", s, i)
 			return
 		}
+		var channel util.Channel
+		channel, err = util.SearchByName(i.Data.Options[0].StringValue(),channels)
 
-		channel := channels.Data[0].Channel
+		// there are no channels with this exact name...
+		if err != nil {
+			if len(channels.Data)>0{
+				// If channels.Data is not empty, just return the first result here
+				channel = channels.Data[0].Channel
+			} else {
+				// If channels.Data is empty, return the error
+				util.DiscordBotResponder(err.Error(), s, i)
+				return
+			}
+		}
+
 		content = "Broadcaster: " + channel.DisplayName +
 			"\nStream-Title: "+channel.Title +
 			"\nLanguage: " + channel.Lang +
 			"\nGame: " + channel.GameName
 		if channel.IsLive {
 			content += "\nStatus: Online"+
-				"\nStarted: " + channel.StartedAt
+				"\nStarted: " + channel.StartedAt +
+				"\nStream: "+constants.UrlTwitchStream+channel.LoginName
 		} else {
-			content += "\nStatus: Offline"
+			content += "\nStatus: Offline" +
+				"\nThumbnail: " + channel.Thumbnail
 		}
-		content += "\nThumbnail: " + channel.Thumbnail
 
-		DiscordBotResponder(content, s, i)
+		util.DiscordBotResponder(content, s, i)
 	}
 )
-
-
-func DiscordBotResponder(content string, s *discordgo.Session, i *discordgo.InteractionCreate) {
-	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionApplicationCommandResponseData{
-			Content:content,
-		},
-	})
-}
-
-
 
 // RegisterStream function for registering command for the bot to serve
 func RegisterStream(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, streamCommand)
-	commandHandlers["stream"] = streamCommandHandler
+	commandHandlers[commandWord] = streamCommandHandler
 }
 

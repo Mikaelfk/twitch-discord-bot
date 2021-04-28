@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"twitch-discord-bot/util"
 )
 
 //
@@ -17,12 +18,7 @@ var (
 
 	// define commandHandler for this command
 	pangCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionApplicationCommandResponseData{
-				Content: "boom",
-			},
-		})
+		util.DiscordBotResponder("BOOM", s, i)
 	}
 )
 

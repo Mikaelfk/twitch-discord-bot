@@ -3,7 +3,10 @@ package twitchAPI
 import (
 	"errors"
 	"log"
+<<<<<<< HEAD
 	"twitch-discord-bot/constants"
+=======
+>>>>>>> Added the GetTopCategories function in topCategories.go
 	"twitch-discord-bot/util"
 )
 
@@ -22,7 +25,11 @@ func GetTopCategories() ([]string, error) {
 	var topCategories TopCategoriesResult
 
 	// Calls a GET request to top games from the twitch API
+<<<<<<< HEAD
 	err := util.HandleRequest(constants.UrlTwitchTopGames, "GET", &topCategories)
+=======
+	err := util.HandleRequest("https://api.twitch.tv/helix/games/top", "GET", &topCategories)
+>>>>>>> Added the GetTopCategories function in topCategories.go
 
 	// Returns an error if it couldn't parse the request into the struct
 	if err != nil {

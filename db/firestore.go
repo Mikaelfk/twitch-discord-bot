@@ -2,6 +2,7 @@ package db
 
 import (
 	"context" // State handling across API boundaries; part of native GoLang API
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,6 +20,35 @@ var client *firestore.Client
 
 // Collection name in Firestore
 var collection = "Subscriptions"
+
+// Gets a subscription where the streamer and channel id matches
+func GetSubscription(streamer string, channelId string) (string, string, error) {
+
+	// Makes an iterator over all the documents in a collection
+	iter := client.Collection(collection).Documents(ctx)
+	for {
+		// If the iterator is done, break out
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		// Returns an error if the iterator failed
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
+
+		// Stores document data in a map
+		m := doc.Data()
+
+		// Checks if both the streamer field and the channel id field matches the input
+		if m["streamer_name"].(string) == streamer && m["channel_id"].(string) == channelId {
+			return m["streamer_name"].(string), m["channel_id"].(string), nil
+		}
+	}
+
+	// Returns empty strings and an error if no matches are found
+	return "", "", errors.New("No matches")
+}
 
 // Get all subscriptions in a collection.
 func GetSubscriptions() []string {

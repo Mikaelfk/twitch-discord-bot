@@ -25,7 +25,7 @@ var collection = "Subscriptions"
 func GetSubscription(streamer string, channelId string) (string, string, error) {
 
 	// Makes an iterator over all the documents in a collection
-	iter := client.Collection(collection).Documents(ctx)
+	iter := client.Collection(collection).Where("streamer_name", "==", streamer).Where("channel_id", "==", channelId).Documents(ctx)
 	for {
 		// If the iterator is done, break out
 		doc, err := iter.Next()
@@ -47,7 +47,7 @@ func GetSubscription(streamer string, channelId string) (string, string, error) 
 	}
 
 	// Returns empty strings and an error if no matches are found
-	return "", "", errors.New("No matches")
+	return "", "", errors.New("no matches")
 }
 
 // Get all subscriptions in a collection.

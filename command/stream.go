@@ -8,28 +8,25 @@ import (
 	"twitch-discord-bot/util"
 )
 
-// Stream command will get info about active streams.
-// It may show several streams at a time, with multiple filter/search options
-// such as game, streamer, language, max-viewers/min-viewers, is-mature, etc
-//
+
 type Stream struct {
-	Id string `json:"id"`
-	UserId string `json:"user_id"`
+	Id        string `json:"id"`
+	UserId    string `json:"user_id"`
 	UserLogin string `json:"user_login"`
-	UserName string `json:"user_name"`
-	GameName string `json:"game_name"`
-	Title string `json:"title"`
+	UserName  string `json:"user_name"`
+	GameName  string `json:"game_name"`
+	Title     string `json:"title"`
 	ViewerCount int `json:"viewer_count"`
-	StartedAt string `json:"started-at"`
-	Language string `json:"language"`
-	IsMature bool `json:"is_mature"`
+	StartedAt string `json:"started_at"`
+	Language  string `json:"language"`
+	IsMature  bool `json:"is_mature"`
 }
 type AllStreams struct {
 	Data []struct {Stream} `json:"data"`
 }
 
 var streamCommandWord = "stream"
-var maxResults = 3
+var maxResults = 3 // Maximum number of shown results in discord
 
 var (
 
@@ -48,7 +45,7 @@ var (
 		{
 
 			Type:        discordgo.ApplicationCommandOptionString,
-			Name:        "game-id", //TODO: ..make this "game-name" instead
+			Name:        "game-id",
 			Description: "Get top streams that currently plays this game.",
 			Required:    false,
 		},
@@ -69,18 +66,17 @@ var (
 		// Add the optional parameters if any
 		for k:=0; k<len(i.Data.Options); k++{
 			if i.Data.Options[k].Name==streamCommand.Options[0].Name{
-					URL += "&"+ constants.ParaUserLogin + i.Data.Options[k].StringValue()
+				URL += "&"+ constants.ParaUserLogin + i.Data.Options[k].StringValue()
 			} else if i.Data.Options[k].Name==streamCommand.Options[1].Name{
-					URL += "&"+ "game_id=" + i.Data.Options[k].StringValue()
+				URL += "&"+ constants.ParaGameId + i.Data.Options[k].StringValue()
 			} else if i.Data.Options[k].Name==streamCommand.Options[2].Name{
-					URL += "&"+"language=" + i.Data.Options[k].StringValue()
+				URL += "&"+ constants.ParaLanguage + i.Data.Options[k].StringValue()
 			} else {
+				// This should never really happen...
 				util.DiscordBotResponder("I encountered an unexpected error :/",s,i)
 				return
 			}
 		}
-
-
 
 		var streams AllStreams
 		err := util.HandleRequest(URL, http.MethodGet, &streams)

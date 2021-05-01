@@ -25,7 +25,7 @@ type AllStreams struct {
 	Data []struct {Stream} `json:"data"`
 }
 
-var streamCommandWord = "stream"
+const streamCommandWord = "stream"
 var maxResults = 3 // Maximum number of shown results in discord
 
 var (

@@ -12,7 +12,7 @@ import (
 //
 
 
-var channelCommandWord = "channel"
+const channelCommandWord = "channel"
 
 var (
 

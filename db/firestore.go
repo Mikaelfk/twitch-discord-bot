@@ -19,7 +19,7 @@ var client *firestore.Client
 // Collection name in Firestore
 var collection = "Subscriptions"
 
-// Gets a subscription where the streamer and channel id matches
+//GetSubscription gets a subscription where the streamer and channel id matches
 func GetSubscription(streamer string, channelId string) (string, string, error) {
 
 	// Makes an iterator over all the documents in a collection

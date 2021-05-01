@@ -8,6 +8,7 @@ import (
 	"twitch-discord-bot/util"
 )
 
+
 type game struct {
 	ArtUrl string `json:"box_art_url"`
 	Id     string `json:"id"`
@@ -18,26 +19,27 @@ type gamesData struct {
 	Data []struct {game} `json:"data"`
 }
 
+// Some constants
 const gamesCommandWord = "games"
-const numGamesDefault = 1
+const numGamesDefault = 1 // By default, only show 1 game
 
 var (
 	// define name and description for command
 	gamesCommand = discordgo.ApplicationCommand{
 		Name:        gamesCommandWord,
-		Description: "will pang you",
+		Description: "Will show games registered by Twitch",
 		Options: []*discordgo.ApplicationCommandOption{{
 
 			Type:        discordgo.ApplicationCommandOptionString,
 			Name:        "game-name",
-			Description: "Gets game IDs by name.",
+			Description: "Gets game IDs by name",
 			Required:    true,
 		},
 		{
 
 			Type:        discordgo.ApplicationCommandOptionInteger,
 			Name:        "num-games",
-			Description: "Specify how many results you want. (max 10)",
+			Description: "Specify how many results you want. (up to 10)",
 			Required:    false,
 		},
 		},
@@ -62,11 +64,10 @@ var (
 		} else {
 
 			if len(games.Data)<num{
+				// if the length of the twitch api response is shorter than the requested amount, then...
 				num = len(games.Data)
 			}
 			for index:=0; index < num; index++{
-
-
 				parts := strings.Split(games.Data[index].ArtUrl, "52x72.jpg")
 				icon := parts[0]+constants.DiscordBotImgResolution+".jpg"
 				content +=  "\n--------------"+
@@ -75,7 +76,6 @@ var (
 					"\nIcon: "+icon
 			}
 		}
-
 		util.DiscordBotResponder(content, s, i)
 	}
 )

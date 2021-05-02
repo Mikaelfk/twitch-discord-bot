@@ -31,7 +31,7 @@ var (
 		Options: []*discordgo.ApplicationCommandOption{{
 
 			Type:        discordgo.ApplicationCommandOptionString,
-			Name:        "game-name", //TODO: Doesn't currently allow spaces. Use "-" instead of space or no spaces at all.
+			Name:        "game-name",
 			Description: "Gets game IDs by name.",
 			Required:    true,
 		},

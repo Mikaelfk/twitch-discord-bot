@@ -16,7 +16,7 @@ type game struct {
 }
 
 type gamesData struct {
-	Data []struct {game} `json:"data"`
+	Data []game `json:"data"`
 }
 
 // Some constants
@@ -31,8 +31,8 @@ var (
 		Options: []*discordgo.ApplicationCommandOption{{
 
 			Type:        discordgo.ApplicationCommandOptionString,
-			Name:        "game-name",
-			Description: "Gets game IDs by name",
+			Name:        "game-name", //TODO: Doesn't currently allow spaces. Use "-" instead of space or no spaces at all.
+			Description: "Gets game IDs by name.",
 			Required:    true,
 		},
 		{
@@ -56,6 +56,8 @@ var (
 			}
 		}
 		var content = ""
+
+
 		games, err := findGames(i.Data.Options[0].StringValue(), num)
 		if err != nil {
 			content = constants.BotUnexpectedErrorMessage
@@ -89,6 +91,9 @@ func RegisterGames(commands *[]discordgo.ApplicationCommand, commandHandlers map
 
 //findGames finds the 'first' games that is somewhat similar to gameName
 func findGames(gameName string, first int) (gamesData, error) {
+
+	//Replaces possible spaces with "-" (dashes) before calling the handleRequest method
+	gameName = strings.Join(strings.Split(gameName , " "),"-")
 	URL := constants.UrlTwitchGames + gameName + "&first=" + strconv.Itoa(first)
 
 	var data gamesData

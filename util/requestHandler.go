@@ -6,10 +6,12 @@ import (
 	"net/http"
 )
 
-// HandleRequest handles a request to the twitch API by the given URL and the specified rest-method 'method' ("POST", "GET")
+// HandleRequest handles a request to the twitch API by the given URL (NO SPACES ALLOWED) and the specified rest-method 'method' ("POST", "GET")
 // and decodes the response into the specified resType interface. This is so that you can decide what type-struct you want for each request.
 // Note: even if this method returns nil, it does not guarantee it decoded correctly into the specified resType. It just means it had no decoding errors.
 // Therefore, if the contents of the resType is important, make sure to check for empty values.
+//
+// IMPORTANT: Do not include spaces in the URL as it will make this method return EOF error.
 func HandleRequest(URL string, method string, resType interface{}) error {
 
 	// only valid methods allowed. Can add more methods later if need be

@@ -16,8 +16,12 @@ const (
 	ParaLanguage = "language="
 
 
-	BotUnexpectedErrorMessage = "I'm vewy sorwy but somwthing wierd happened... >0<"
-	BotNoResults = "I'm so sowwy... I didn't find anything... (o.O)"
 
-
+)
+// Discord Bot Error Messages
+const (
+	BotUnexpectedErrorMsg = "I'm vewy sorwy but somwthing wierd happened... >0<"
+	BotNoResultsMsg       = "I'm so sowwy... I didn't find anything... (o.O)"
+	BotNoActiveStreamsMsg = "Sowwy... There doesn't seem to be a stream like that active at the moment <0.o>"
+	BotNoGames = "...I'm afraid there are no games like that.. sowwy >.<"
 )

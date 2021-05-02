@@ -45,7 +45,7 @@ var (
 		{
 
 			Type:        discordgo.ApplicationCommandOptionString,
-			Name:        "game-id",
+			Name:        "game-name",
 			Description: "Get top streams that currently plays this game.",
 			Required:    false,
 		},
@@ -53,6 +53,13 @@ var (
 			Type:        discordgo.ApplicationCommandOptionString,
 			Name:        "language",
 			Description: "Get currently top streams by their language's ISO 639-1 two letter code.",
+			Required:    false,
+		},
+		{
+
+			Type:        discordgo.ApplicationCommandOptionInteger,
+			Name:        "game-id",
+			Description: "Get top streams that currently plays this game.",
 			Required:    false,
 		},
 		},
@@ -67,13 +74,24 @@ var (
 		for k:=0; k<len(i.Data.Options); k++{
 			if i.Data.Options[k].Name==streamCommand.Options[0].Name{
 				URL += "&"+ constants.ParaUserLogin + i.Data.Options[k].StringValue()
-			} else if i.Data.Options[k].Name==streamCommand.Options[1].Name{
-				URL += "&"+ constants.ParaGameId + i.Data.Options[k].StringValue()
+			} else if i.Data.Options[k].Name==streamCommand.Options[3].Name{
+				URL += "&"+ constants.ParaGameId + strconv.Itoa(int(i.Data.Options[k].IntValue()))
 			} else if i.Data.Options[k].Name==streamCommand.Options[2].Name{
 				URL += "&"+ constants.ParaLanguage + i.Data.Options[k].StringValue()
+			} else if i.Data.Options[k].Name==streamCommand.Options[1].Name {
+
+				gameID, err := findGames(i.Data.Options[k].StringValue(), 1)
+				if err != nil {
+					util.DiscordBotResponder(constants.BotUnexpectedErrorMsg,s,i)
+					return
+				} else if len(gameID.Data)<=0 {
+					util.DiscordBotResponder(constants.BotNoGames, s, i)
+					return
+				}
+				URL += "&"+ constants.ParaGameId + gameID.Data[0].Id
 			} else {
 				// This should never really happen...
-				util.DiscordBotResponder("I encountered an unexpected error :/",s,i)
+				util.DiscordBotResponder(constants.BotUnexpectedErrorMsg,s,i)
 				return
 			}
 		}
@@ -81,9 +99,9 @@ var (
 		var streams AllStreams
 		err := util.HandleRequest(URL, http.MethodGet, &streams)
 		if err!= nil {
-			content = "Something went wrong..."
+			content = constants.BotUnexpectedErrorMsg
 		} else if len(streams.Data)<=0 {
-			content = "I couldn't find any active streams... :'("
+			content = constants.BotNoActiveStreamsMsg
 		} else {
 
 			var length int

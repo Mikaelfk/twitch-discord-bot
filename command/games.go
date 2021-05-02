@@ -60,9 +60,9 @@ var (
 
 		games, err := findGames(i.Data.Options[0].StringValue(), num)
 		if err != nil {
-			content = constants.BotUnexpectedErrorMessage
+			content = constants.BotUnexpectedErrorMsg
 		} else if len(games.Data) <= 0 {
-			content = constants.BotNoResults
+			content = constants.BotNoResultsMsg
 		} else {
 
 			if len(games.Data)<num{

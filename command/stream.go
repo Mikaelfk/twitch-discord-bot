@@ -80,15 +80,15 @@ var (
 				URL += "&"+ constants.ParaLanguage + i.Data.Options[k].StringValue()
 			} else if i.Data.Options[k].Name==streamCommand.Options[1].Name {
 
-				gameID, err := findGames(i.Data.Options[k].StringValue(), 1)
+				games, err := findGames(i.Data.Options[k].StringValue(), 1)
 				if err != nil {
 					util.DiscordBotResponder(constants.BotUnexpectedErrorMsg,s,i)
 					return
-				} else if len(gameID.Data)<=0 {
+				} else if len(games.Data)<=0 {
 					util.DiscordBotResponder(constants.BotNoGames, s, i)
 					return
 				}
-				URL += "&"+ constants.ParaGameId + gameID.Data[0].Id
+				URL += "&"+ constants.ParaGameId + games.Data[0].Id // just get the first (and only) element
 			} else {
 				// This should never really happen...
 				util.DiscordBotResponder(constants.BotUnexpectedErrorMsg,s,i)

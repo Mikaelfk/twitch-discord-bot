@@ -53,6 +53,7 @@ func registerCommands() {
 	command.RegisterGames(&commandDefinitions, commandHandlers)
 	command.RegisterTopCategories(&commandDefinitions, commandHandlers)
 	command.RegisterFollowList(&commandDefinitions, commandHandlers)
+	command.RegisterTeam(&commandDefinitions, commandHandlers)
 
 	// add a handler for handling commands
 	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {

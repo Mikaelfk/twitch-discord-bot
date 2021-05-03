@@ -7,10 +7,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-//
-// Example command
-//
-
 var (
 	// define name and description for command
 	followListCommand = discordgo.ApplicationCommand{
@@ -30,15 +26,18 @@ var (
 	followListCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		username := fmt.Sprintf("%v", i.Data.Options[0].Value)
 		// Get all the streamers in a slice
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionApplicationCommandResponseData{
+					Content: "The user " + username + " follows:",
+				},
+			})
 		streamers, err := twitchAPI.GetFollowList(username)
 		if err != nil {
 			// Prints th error to the user
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
-					Content: err.Error(),
-				},
-			})
+			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+						Content: err.Error(),
+					})
 		} else {
 			streamersString := ""
 			index := 0
@@ -54,19 +53,11 @@ var (
 				index++
 			}
 			streamersStringArray = append(streamersStringArray, streamersString)
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
-					Content: "The user " + username + " follows: \n" + streamersStringArray[0],
-				},
-			})
 			// Prints all the streamers that did not fit in the first message
-			for j, v := range streamersStringArray {
-				if j > 0 {
-					s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-						Content: v,
-					})
-				}
+			for _, v := range streamersStringArray {
+				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					Content: v,
+				})
 			}
 		}
 	}

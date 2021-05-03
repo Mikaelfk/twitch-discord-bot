@@ -1,7 +1,7 @@
 package command
 
 import (
-	"log"
+	"fmt"
 	"twitch-discord-bot/twitchAPI"
 
 	"github.com/bwmarrin/discordgo"
@@ -28,17 +28,35 @@ var (
 
 	// define commandHandler for this command
 	followListCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		username := fmt.Sprintf("%v", i.Data.Options[0].Value)
+		streamers := twitchAPI.GetFollowList(username)
+		streamersString := ""
+		index := 0
+		streamersStringArray := []string{}
+		for _, v := range streamers {
+			streamersString += v + ", "
+			if index > 60 {
+				streamersStringArray = append(streamersStringArray, streamersString)
+				streamersString = ""
+				index = -1
+			}
+			index++
+		}
+		streamersStringArray = append(streamersStringArray, streamersString)
+
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionApplicationCommandResponseData{
-				Content: "pong",
+				Content: "The user " + username + " follows: \n" + streamersStringArray[0],
 			},
 		})
-		s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-			Content: "hey",
-		})
-		twitchAPI.GetFollowList("ukhureaper")
-		log.Println(i.Data.Options[0].Value)
+		for j, v := range streamersStringArray {
+			if j > 0 {
+				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+					Content: v,
+				})
+			}
+		}
 	}
 )
 

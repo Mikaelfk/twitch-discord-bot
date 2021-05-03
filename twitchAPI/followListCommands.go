@@ -1,8 +1,6 @@
 package twitchAPI
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"twitch-discord-bot/constants"
 	"twitch-discord-bot/util"
@@ -25,7 +23,7 @@ type twitchFollowList struct {
 	} `json:"pagination"`
 }
 
-func GetFollowList(username string) {
+func GetFollowList(username string) []string {
 	var twitchUserSearchResponse twitchUserSearch
 	util.HandleRequest(constants.UrlTwitchUserName+username, http.MethodGet, &twitchUserSearchResponse)
 	userID := twitchUserSearchResponse.Data[0].ID
@@ -37,16 +35,15 @@ func GetFollowList(username string) {
 	for _, s := range twitchFollowListResponse.Data {
 		streamers = append(streamers, s.ToName)
 	}
-
+	cursor := ""
 	for twitchFollowListResponse.Pagination.Cursor != "" {
-		cursor := twitchFollowListResponse.Pagination.Cursor
-		twitchFollowListResponse := twitchFollowList{}
-		fmt.Println(cursor)
+		cursor = twitchFollowListResponse.Pagination.Cursor
+		twitchFollowListResponse = twitchFollowList{}
 
 		util.HandleRequest(constants.UrlTwitchFollowlist+userID+"&after="+cursor, http.MethodGet, &twitchFollowListResponse)
 		for _, s := range twitchFollowListResponse.Data {
 			streamers = append(streamers, s.ToName)
 		}
 	}
-	log.Println(streamers)
+	return streamers
 }

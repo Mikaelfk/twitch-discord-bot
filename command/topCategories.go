@@ -2,6 +2,7 @@ package command
 
 import (
 	"strconv"
+	"twitch-discord-bot/constants"
 	"twitch-discord-bot/twitchAPI"
 	"twitch-discord-bot/util"
 
@@ -23,7 +24,7 @@ var (
 
 		// Displays an error if something goes wrong
 		if err != nil {
-			util.DiscordBotResponder(err.Error(), s, i)
+			util.DiscordBotResponder(constants.BotUnexpectedErrorMsg, s, i)
 		}
 
 		// The response

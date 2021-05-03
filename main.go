@@ -51,7 +51,11 @@ func registerCommands() {
 	command.RegisterChannel(&commandDefinitions, commandHandlers)
 	command.RegisterStream(&commandDefinitions, commandHandlers)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	command.RegisterGames(&commandDefinitions, commandHandlers)
+=======
+	command.RegisterTopCategories(&commandDefinitions, commandHandlers)
+>>>>>>> Added the RegisterTopCategories command in the registerCommand function in main.go
 =======
 	command.RegisterTopCategories(&commandDefinitions, commandHandlers)
 >>>>>>> Added the RegisterTopCategories command in the registerCommand function in main.go

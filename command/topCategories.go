@@ -12,7 +12,7 @@ import (
 var (
 	// define name and description for command
 	topCategoriesCommand = discordgo.ApplicationCommand{
-		Name:        "topcategories",
+		Name:        "top-categories",
 		Description: "will fetch all the current top categories",
 	}
 
@@ -41,5 +41,5 @@ var (
 // function for registering command for the bot to serve
 func RegisterTopCategories(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, topCategoriesCommand)
-	commandHandlers["topcategories"] = topCategoriesCommandHandler
+	commandHandlers["top-categories"] = topCategoriesCommandHandler
 }

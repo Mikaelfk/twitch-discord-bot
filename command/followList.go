@@ -7,10 +7,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-//
-// Example command
-//
-
 var (
 	// define name and description for command
 	followListCommand = discordgo.ApplicationCommand{
@@ -19,7 +15,7 @@ var (
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "string-option",
+				Name:        "Username",
 				Description: "String option",
 				Required:    true,
 			},
@@ -29,29 +25,36 @@ var (
 	// define commandHandler for this command
 	followListCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		username := fmt.Sprintf("%v", i.Data.Options[0].Value)
-		streamers := twitchAPI.GetFollowList(username)
-		streamersString := ""
-		index := 0
-		streamersStringArray := []string{}
-		for _, v := range streamers {
-			streamersString += v + ", "
-			if index > 60 {
-				streamersStringArray = append(streamersStringArray, streamersString)
-				streamersString = ""
-				index = -1
-			}
-			index++
-		}
-		streamersStringArray = append(streamersStringArray, streamersString)
-
+		// Get all the streamers in a slice
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionApplicationCommandResponseData{
-				Content: "The user " + username + " follows: \n" + streamersStringArray[0],
-			},
-		})
-		for j, v := range streamersStringArray {
-			if j > 0 {
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionApplicationCommandResponseData{
+					Content: "The user " + username + " follows:",
+				},
+			})
+		streamers, err := twitchAPI.GetFollowList(username)
+		if err != nil {
+			// Prints th error to the user
+			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+						Content: err.Error(),
+					})
+		} else {
+			streamersString := ""
+			index := 0
+			streamersStringArray := []string{}
+			// Loops through all the streamers, and adds them to strings, there is a max number of 60 streamers per string.
+			for _, v := range streamers {
+				streamersString += v + ", "
+				if index > 60 {
+					streamersStringArray = append(streamersStringArray, streamersString)
+					streamersString = ""
+					index = -1
+				}
+				index++
+			}
+			streamersStringArray = append(streamersStringArray, streamersString)
+			// Prints all the streamers that did not fit in the first message
+			for _, v := range streamersStringArray {
 				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: v,
 				})

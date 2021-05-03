@@ -1,6 +1,7 @@
 package twitchAPI
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"twitch-discord-bot/constants"
@@ -18,18 +19,18 @@ type twitchFollowList struct {
 	} `json:"pagination"`
 }
 
-func GetFollowList(username string) []string {
+func GetFollowList(username string) ([]string, error) {
 	userID, err := util.GetUserId(username)
 	if err != nil {
 		log.Printf("Error: %v", err)
-		return []string{}
+		return []string{}, err
 	}
 	var twitchFollowListResponse twitchFollowList
 	util.HandleRequest(constants.UrlTwitchFollowlist+userID, http.MethodGet, &twitchFollowListResponse)
 
 	if len(twitchFollowListResponse.Data) <= 0 {
 		log.Println("User does not follow anyone")
-		return []string{}
+		return []string{}, errors.New("user does not follow anyone")
 	}
 	streamers := []string{}
 	for _, s := range twitchFollowListResponse.Data {
@@ -45,5 +46,5 @@ func GetFollowList(username string) []string {
 			streamers = append(streamers, s.ToName)
 		}
 	}
-	return streamers
+	return streamers, nil
 }

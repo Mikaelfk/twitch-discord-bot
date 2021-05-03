@@ -3,86 +3,137 @@ package command
 import (
 	"github.com/bwmarrin/discordgo"
 	"net/http"
+	"strconv"
 	"twitch-discord-bot/constants"
 	"twitch-discord-bot/util"
 )
 
-//
-// Example command - for authentication with twitch API
-//
 
+type Stream struct {
+	Id        string `json:"id"`
+	UserId    string `json:"user_id"`
+	UserLogin string `json:"user_login"`
+	UserName  string `json:"user_name"`
+	GameName  string `json:"game_name"`
+	Title     string `json:"title"`
+	ViewerCount int `json:"viewer_count"`
+	StartedAt string `json:"started_at"`
+	Language  string `json:"language"`
+	IsMature  bool `json:"is_mature"`
+}
+type AllStreams struct {
+	Data []struct {Stream} `json:"data"`
+}
 
-var commandWord = "stream"
+const streamCommandWord = "stream"
+var maxResults = 3 // Maximum number of shown results in discord
 
 var (
 
 
 	// define name and description for command
 	streamCommand = discordgo.ApplicationCommand{
-		Name:        commandWord,
-		Description: "will get info about stream",
+		Name:        streamCommandWord,
+		Description: "Will get the top "+strconv.Itoa(maxResults)+" currently most viewed streams.",
 		Options: []*discordgo.ApplicationCommandOption{{
 
 			Type:        discordgo.ApplicationCommandOptionString,
-			Name:        "streamer",
-			Description: "Get info of particular stream by name or ID",
-			Required:    true,
+			Name:        "login-name",
+			Description: "Get streams by a streamer's name.",
+			Required:    false,
+		},
+		{
+
+			Type:        discordgo.ApplicationCommandOptionString,
+			Name:        "game-name",
+			Description: "Get top streams that currently plays this game.",
+			Required:    false,
+		},
+		{
+			Type:        discordgo.ApplicationCommandOptionString,
+			Name:        "language",
+			Description: "Get currently top streams by their language's ISO 639-1 two letter code.",
+			Required:    false,
+		},
+		{
+
+			Type:        discordgo.ApplicationCommandOptionInteger,
+			Name:        "game-id",
+			Description: "Get top streams that currently plays this game.",
+			Required:    false,
 		},
 		},
 	}
 
 	// define commandHandler for this command
 	streamCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		var content = ""
+		URL := constants.UrlTwitchStreamInfo+"?first="+strconv.Itoa(maxResults)
 
-		// Todo: Check if it is an int, if so - assume it is an ID and try to search with it
-		//r := []rune(i.Data.Options[0].StringValue())
-		var content string
-		var err error
-		var channels util.TwitchChannels
+		// Add the optional parameters if any
+		for k:=0; k<len(i.Data.Options); k++{
+			if i.Data.Options[k].Name==streamCommand.Options[0].Name{
+				URL += "&"+ constants.ParaUserLogin + i.Data.Options[k].StringValue()
+			} else if i.Data.Options[k].Name==streamCommand.Options[3].Name{
+				URL += "&"+ constants.ParaGameId + strconv.Itoa(int(i.Data.Options[k].IntValue()))
+			} else if i.Data.Options[k].Name==streamCommand.Options[2].Name{
+				URL += "&"+ constants.ParaLanguage + i.Data.Options[k].StringValue()
+			} else if i.Data.Options[k].Name==streamCommand.Options[1].Name {
 
-		// Search by name
-		URL := constants.UrlTwitchChannelName + i.Data.Options[0].StringValue()
-		err = util.HandleRequest(URL, http.MethodGet, &channels)
-
-		if err!= nil {
-			util.DiscordBotResponder("Something went wrong...", s, i)
-			return
-		}
-		var channel util.Channel
-		channel, err = util.SearchByName(i.Data.Options[0].StringValue(),channels)
-
-		// there are no channels with this exact name...
-		if err != nil {
-			if len(channels.Data)>0{
-				// If channels.Data is not empty, just return the first result here
-				channel = channels.Data[0].Channel
+				games, err := findGames(i.Data.Options[k].StringValue(), 1)
+				if err != nil {
+					util.DiscordBotResponder(constants.BotUnexpectedErrorMsg,s,i)
+					return
+				} else if len(games.Data)<=0 {
+					util.DiscordBotResponder(constants.BotNoGames, s, i)
+					return
+				}
+				URL += "&"+ constants.ParaGameId + games.Data[0].Id // just get the first (and only) element
 			} else {
-				// If channels.Data is empty, return the error
-				util.DiscordBotResponder(err.Error(), s, i)
+				// This should never really happen...
+				util.DiscordBotResponder(constants.BotUnexpectedErrorMsg,s,i)
 				return
 			}
 		}
 
-		content = "Broadcaster: " + channel.DisplayName +
-			"\nStream-Title: "+channel.Title +
-			"\nLanguage: " + channel.Lang +
-			"\nGame: " + channel.GameName
-		if channel.IsLive {
-			content += "\nStatus: Online"+
-				"\nStarted: " + channel.StartedAt +
-				"\nStream: "+constants.UrlTwitchStream+channel.LoginName
+		var streams AllStreams
+		err := util.HandleRequest(URL, http.MethodGet, &streams)
+		if err!= nil {
+			content = constants.BotUnexpectedErrorMsg
+		} else if len(streams.Data)<=0 {
+			content = constants.BotNoActiveStreamsMsg
 		} else {
-			content += "\nStatus: Offline" +
-				"\nThumbnail: " + channel.Thumbnail
+
+			var length int
+			if len(streams.Data)>maxResults{
+				length = maxResults
+			} else {
+				length = len(streams.Data)
+			}
+
+			for i:=0; i<length; i++ {
+				content +=
+					"\n----------------"+
+					"\nStreamer: " + streams.Data[i].UserLogin + // only bother to show the login name
+					"\nTitle: " + streams.Data[i].Title +
+					"\nGame: " + streams.Data[i].GameName +
+					"\nCurrent Viewers: " + strconv.Itoa(streams.Data[i].ViewerCount) +
+					"\nStarted at: " + streams.Data[i].StartedAt +
+					"\nLanguage: " + streams.Data[i].Language +
+					"\nStream: " + constants.UrlTwitchStream + streams.Data[i].UserLogin +
+					"\n----------------"
+			}
 		}
 
 		util.DiscordBotResponder(content, s, i)
+
 	}
 )
 
-// RegisterStream function for registering command for the bot to serve
+//RegisterStream function for registering command for the bot to serve
 func RegisterStream(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, streamCommand)
-	commandHandlers[commandWord] = streamCommandHandler
+	commandHandlers[streamCommandWord] = streamCommandHandler
 }
+
 

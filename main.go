@@ -50,12 +50,9 @@ func registerCommands() {
 	command.RegisterPang(&commandDefinitions, commandHandlers)
 	command.RegisterChannel(&commandDefinitions, commandHandlers)
 	command.RegisterStream(&commandDefinitions, commandHandlers)
-<<<<<<< HEAD
 	command.RegisterGames(&commandDefinitions, commandHandlers)
 	command.RegisterTopCategories(&commandDefinitions, commandHandlers)
-=======
 	command.RegisterFollowList(&commandDefinitions, commandHandlers)
->>>>>>> Added base structure for followList command
 
 	// add a handler for handling commands
 	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {

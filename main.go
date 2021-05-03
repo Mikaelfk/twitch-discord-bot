@@ -50,7 +50,11 @@ func registerCommands() {
 	command.RegisterPang(&commandDefinitions, commandHandlers)
 	command.RegisterChannel(&commandDefinitions, commandHandlers)
 	command.RegisterStream(&commandDefinitions, commandHandlers)
+<<<<<<< HEAD
 	command.RegisterGames(&commandDefinitions, commandHandlers)
+=======
+	command.RegisterTopCategories(&commandDefinitions, commandHandlers)
+>>>>>>> Added the RegisterTopCategories command in the registerCommand function in main.go
 
 	// add a handler for handling commands
 	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {

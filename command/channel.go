@@ -1,21 +1,20 @@
 package command
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"net/http"
 	"twitch-discord-bot/constants"
 	"twitch-discord-bot/util"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 //
 // Example command - for authentication with twitch API
 //
 
-
 const channelCommandWord = "channel"
 
 var (
-
 
 	// define name and description for command
 	channelCommand = discordgo.ApplicationCommand{
@@ -44,16 +43,16 @@ var (
 		URL := constants.UrlTwitchChannelName + i.Data.Options[0].StringValue()
 		err = util.HandleRequest(URL, http.MethodGet, &channels)
 
-		if err!= nil {
+		if err != nil {
 			util.DiscordBotResponder("Something went wrong...", s, i)
 			return
 		}
 		var channel util.Channel
-		channel, err = util.SearchByName(i.Data.Options[0].StringValue(),channels)
+		channel, err = util.SearchByName(i.Data.Options[0].StringValue(), channels)
 
 		// there are no channels with this exact name...
 		if err != nil {
-			if len(channels.Data)>0{
+			if len(channels.Data) > 0 {
 				// If channels.Data is not empty, just return the first result here
 				channel = channels.Data[0].Channel
 			} else {
@@ -64,13 +63,13 @@ var (
 		}
 
 		content = "Broadcaster: " + channel.DisplayName +
-			"\nStream-Title: "+channel.Title +
+			"\nStream-Title: " + channel.Title +
 			"\nLanguage: " + channel.Lang +
 			"\nGame: " + channel.GameName
 		if channel.IsLive {
-			content += "\nStatus: Online"+
+			content += "\nStatus: Online" +
 				"\nStarted: " + channel.StartedAt +
-				"\nStream: "+constants.UrlTwitchStream+channel.LoginName
+				"\nStream: " + constants.UrlTwitchStream + channel.LoginName
 		} else {
 			content += "\nStatus: Offline" +
 				"\nThumbnail: " + channel.Thumbnail
@@ -85,4 +84,3 @@ func RegisterChannel(commands *[]discordgo.ApplicationCommand, commandHandlers m
 	*commands = append(*commands, channelCommand)
 	commandHandlers[channelCommandWord] = channelCommandHandler
 }
-

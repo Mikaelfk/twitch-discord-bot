@@ -2,11 +2,13 @@ package util
 
 import (
 	"errors"
+	"net/http"
+	"twitch-discord-bot/constants"
 )
 
 //TwitchChannels is a collection of multiple Channel(s) and is the response form from GET "https://api.twitch.tv/helix/search/channels?query=pokimane"
 type TwitchChannels struct {
-	Data []struct {Channel} `json:"data"`
+	Data []struct{ Channel } `json:"data"`
 }
 
 //Channel is a struct over a specific channel in the response from GET "https://api.twitch.tv/helix/search/channels?query=pokimane"
@@ -23,9 +25,15 @@ type Channel struct {
 	StartedAt   string `json:"started_at"`
 }
 
-//SearchByName takes in a searchName string and a TwitchChannels struct and returns the channel with DisplayName or LoginName like the search.
+type twitchUserSearch struct {
+	Data []struct {
+		ID string `json:"id"`
+	} `json:"data"`
+}
+
+// SearchByName takes in a searchName string and a TwitchChannels struct and returns the channel with DisplayName or LoginName like the search.
 // If nothing was found, return error and empty Channel
-func SearchByName(searchName string, channels TwitchChannels) (Channel, error){
+func SearchByName(searchName string, channels TwitchChannels) (Channel, error) {
 	for i := 0; i < len(channels.Data); i++ {
 
 		// If the login-name or the displayed name of channel/streamer is equal search...
@@ -34,4 +42,16 @@ func SearchByName(searchName string, channels TwitchChannels) (Channel, error){
 		}
 	}
 	return Channel{}, errors.New("no search result found")
+}
+
+// GetUserID takes a username string and return the user id as a string.
+// If the user does not exist, an error is returned
+func GetUserId(username string) (string, error) {
+	var twitchUserSearchResponse twitchUserSearch
+	HandleRequest(constants.UrlTwitchUserName+username, http.MethodGet, &twitchUserSearchResponse)
+	if len(twitchUserSearchResponse.Data) <= 0 {
+		return "", errors.New("user does not exist")
+	}
+	userID := twitchUserSearchResponse.Data[0].ID
+	return userID, nil
 }

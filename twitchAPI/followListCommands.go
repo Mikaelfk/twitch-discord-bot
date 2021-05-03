@@ -1,16 +1,11 @@
 package twitchAPI
 
 import (
+	"log"
 	"net/http"
 	"twitch-discord-bot/constants"
 	"twitch-discord-bot/util"
 )
-
-type twitchUserSearch struct {
-	Data []struct {
-		ID string `json:"id"`
-	} `json:"data"`
-}
 
 type twitchFollowList struct {
 	Total int `json:"total"`
@@ -24,13 +19,18 @@ type twitchFollowList struct {
 }
 
 func GetFollowList(username string) []string {
-	var twitchUserSearchResponse twitchUserSearch
-	util.HandleRequest(constants.UrlTwitchUserName+username, http.MethodGet, &twitchUserSearchResponse)
-	userID := twitchUserSearchResponse.Data[0].ID
-
+	userID, err := util.GetUserId(username)
+	if err != nil {
+		log.Printf("Error: %v", err)
+		return []string{}
+	}
 	var twitchFollowListResponse twitchFollowList
 	util.HandleRequest(constants.UrlTwitchFollowlist+userID, http.MethodGet, &twitchFollowListResponse)
 
+	if len(twitchFollowListResponse.Data) <= 0 {
+		log.Println("User does not follow anyone")
+		return []string{}
+	}
 	streamers := []string{}
 	for _, s := range twitchFollowListResponse.Data {
 		streamers = append(streamers, s.ToName)

@@ -22,17 +22,17 @@ type docFields struct {
 }
 
 // Gets all the channel ids by a streamer id
-func GetChannelIdsByStreamerId(streamer_id string) []string {
+func GetChannelIdsByStreamerId(streamer_id string) ([]string, error) {
 	// Gets the document with the given streamer id
 	doc, errNotFound := client.Collection(collection).Doc(streamer_id).Get(ctx)
 	if errNotFound != nil {
 		log.Println("Document not found")
-		return nil
+		return nil, errNotFound
 	}
 	// Stores the data in a custom struct and returns the string slice with the ids
 	var docData docFields
 	doc.DataTo(&docData)
-	return docData.Channel_ids
+	return docData.Channel_ids, nil
 }
 
 // Takes the streamer id and discord channel id as parameters and adds a subscription to the firestore

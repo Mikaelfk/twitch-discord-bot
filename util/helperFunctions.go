@@ -2,8 +2,10 @@ package util
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"twitch-discord-bot/constants"
+	"twitch-discord-bot/db"
 )
 
 //TwitchChannels is a collection of multiple Channel(s) and is the response form from GET "https://api.twitch.tv/helix/search/channels?query=pokimane"
@@ -50,8 +52,27 @@ func GetUserId(username string) (string, error) {
 	var twitchUserSearchResponse twitchUserSearch
 	HandleRequest(constants.UrlTwitchUserName+username, http.MethodGet, &twitchUserSearchResponse)
 	if len(twitchUserSearchResponse.Data) <= 0 {
-		return "", errors.New("user does not exist")
+		err := errors.New("user does not exist")
+		log.Printf("Error: %v", err.Error())
+		return "", err
 	}
 	userID := twitchUserSearchResponse.Data[0].ID
 	return userID, nil
+}
+
+// ChannelIdExists checks if a channel id exists for a particular streamer
+func ChannelIdExists(streamer_id string, channel_id string) bool {
+	channel_ids, err := db.GetChannelIdsByStreamerId(streamer_id)
+	if err != nil {
+		log.Println("streamer id not found")
+		return false
+	}
+
+	for _, v := range channel_ids {
+		if channel_id == v {
+			log.Println("channel id found")
+			return true
+		}
+	}
+	return false
 }

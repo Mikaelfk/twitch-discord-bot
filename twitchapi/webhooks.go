@@ -29,7 +29,7 @@ type createWebhook struct {
 
 type creationConfirmation struct {
 	Data []struct {
-		Status string `json:"status`
+		Status string `json:"status"`
 	} `json:"data"`
 }
 

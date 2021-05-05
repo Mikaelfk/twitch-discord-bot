@@ -18,6 +18,10 @@ var client *firestore.Client
 // Collection name in Firestore
 var collection = "Subscriptions"
 
+type docFields struct {
+	Channel_ids []string `firestore:"channel_ids,omitempty"`
+}
+
 //GetSubscription gets a subscription where the streamer and channel id matches
 func GetSubscription(streamer string, channelId string) (string, string, error) {
 
@@ -48,27 +52,18 @@ func GetSubscription(streamer string, channelId string) (string, string, error) 
 	return "", "", errors.New("no matches")
 }
 
-// Get all subscriptions in a collection.
-func GetSubscriptions() []string {
-
-	// This array stores all the subscriptions
-	var subscriptions []string
-
-	iter := client.Collection(collection).Documents(ctx)
-	for {
-		// Iterates over every document found in the subscriptions collection.
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
-		}
-		m := doc.Data()
-		// Appends every stream name entry to the subscriptions slice.
-		subscriptions = append(subscriptions, m["streamer_name"].(string))
+// Gets all the channel ids by a streamer id
+func GetChannelIdsByStreamerId(streamer_id string) []string {
+	// Gets the document with the given streamer id
+	doc, errNotFound := client.Collection(collection).Doc(streamer_id).Get(ctx)
+	if errNotFound != nil {
+		log.Println("Document not found")
+		return nil
 	}
-	return subscriptions
+	// Stores the data in a custom struct and returns the string slice with the ids
+	var docData docFields
+	doc.DataTo(&docData)
+	return docData.Channel_ids
 }
 
 // Takes the streamer id and discord channel id as parameters and adds a subscription to the firestore

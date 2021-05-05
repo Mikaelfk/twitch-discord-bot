@@ -72,9 +72,9 @@ func GetSubscriptions() []string {
 	return subscriptions
 }
 
-// Gets the streamer name and discord channel id as parameters and adds a subscription to the firestore
+// Takes the streamer id and discord channel id as parameters and adds a subscription to the firestore
 func AddSubscription(streamer_id string, channel_id string) error {
-
+	// Tries to get the document with a matching streamer_id, if not found, adds a new document
 	_, errNotFound := client.Collection(collection).Doc(streamer_id).Get(ctx)
 	if errNotFound != nil {
 		_, err := client.Collection(collection).Doc(streamer_id).Set(ctx, map[string]interface{}{
@@ -86,7 +86,7 @@ func AddSubscription(streamer_id string, channel_id string) error {
 		}
 		return nil
 	}
-
+	// If the document exists, adds the channel id to the array in the document
 	_, err := client.Collection(collection).Doc(streamer_id).Update(ctx, []firestore.Update{
 		{
 			Path:  "channel_ids",
@@ -101,7 +101,7 @@ func AddSubscription(streamer_id string, channel_id string) error {
 }
 
 // Deletes a subscription from the firestore
-func deleteSubscription(streamer_name string, channel_id string) error {
+func DeleteSubscription(streamer_name string, channel_id string) error {
 	// Get a collection where the streamer name and channel id are identical to the parameters
 	iter := client.Collection(collection).Where("streamer_name", "==", streamer_name).Where("channel_id", "==", channel_id).Documents(ctx)
 

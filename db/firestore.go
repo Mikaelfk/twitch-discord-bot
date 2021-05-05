@@ -2,12 +2,10 @@ package db
 
 import (
 	"context" // State handling across API boundaries; part of native GoLang API
-	"errors"
 	"log"
 
 	"cloud.google.com/go/firestore"   // Firestore-specific support
 	firebase "firebase.google.com/go" // Generic firebase support
-	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -20,36 +18,6 @@ var collection = "Subscriptions"
 
 type docFields struct {
 	Channel_ids []string `firestore:"channel_ids,omitempty"`
-}
-
-//GetSubscription gets a subscription where the streamer and channel id matches
-func GetSubscription(streamer string, channelId string) (string, string, error) {
-
-	// Makes an iterator over all the documents in a collection
-	iter := client.Collection(collection).Where("streamer_name", "==", streamer).Where("channel_id", "==", channelId).Documents(ctx)
-	for {
-		// If the iterator is done, break out
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		// Returns an error if the iterator failed
-		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
-		}
-
-		// Stores document data in a map
-		m := doc.Data()
-
-		// Checks if both the streamer field and the channel id field matches the input
-		// This is somewhat unecessary as the iterator only iterates through documents where both instances occur
-		if m["streamer_name"].(string) == streamer && m["channel_id"].(string) == channelId {
-			return m["streamer_name"].(string), m["channel_id"].(string), nil
-		}
-	}
-
-	// Returns empty strings and an error if no matches are found
-	return "", "", errors.New("no matches")
 }
 
 // Gets all the channel ids by a streamer id

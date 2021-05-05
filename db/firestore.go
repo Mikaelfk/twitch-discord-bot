@@ -16,6 +16,7 @@ var client *firestore.Client
 // Collection name in Firestore
 var collection = "Subscriptions"
 
+// docFields contains the fields recieved from the firestore document
 type docFields struct {
 	Channel_ids []string `firestore:"channel_ids,omitempty"`
 }

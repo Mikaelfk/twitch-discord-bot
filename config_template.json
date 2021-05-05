@@ -2,5 +2,9 @@
   "DiscordBotToken": "",
   "DiscordServerID": "",
   "TwitchClientID": "",
-  "TwitchAuthToken":  ""
+  "TwitchAuthToken":  "",
+  "TwitchWebhooksSecret": "",
+  "EnableSubscriptionsFunctionality": true,
+  "CallbackUrl:": "",
+  "Port": 8080
 }

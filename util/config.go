@@ -11,10 +11,14 @@ import (
 var Config configuration
 
 type configuration struct {
-	DiscordBotToken string
-	DiscordServerID string
-	TwitchClientID  string
-	TwitchAuthToken string
+	DiscordBotToken                  string
+	DiscordServerID                  string
+	TwitchClientID                   string
+	TwitchAuthToken                  string
+	TwitchWebhooksSecret             string
+	EnableSubscriptionsFunctionality bool
+	CallbackUrl                      string
+	Port                             int
 }
 
 // LoadConfig loads the config values

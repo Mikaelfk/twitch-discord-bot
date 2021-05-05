@@ -12,6 +12,7 @@ const (
 	URLTwitchUserName    = "https://api.twitch.tv/helix/users?login="
 	URLTwitchFollowlist  = "https://api.twitch.tv/helix/users/follows?from_id="
 	URLTwitchGetTeams    = "https://api.twitch.tv/helix/teams?name=" // + [team name]
+	UrlTwitchWebhooks    = "https://api.twitch.tv/helix/eventsub/subscriptions"
 
 	TwitchAPIResolution     = "52x72.jpg"
 	DiscordBotImgResolution = "200x150"

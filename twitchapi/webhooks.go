@@ -21,7 +21,7 @@ type createWebhook struct {
 		BradcasterUserId string `json:"broadcaster_user_id"`
 	} `json:"condition"`
 	Transport struct {
-		Method   string `json:"webhook"`
+		Method   string `json:"method"`
 		Callback string `json:"callback"`
 		Secret   string `json:"secret"`
 	} `json:"transport"`

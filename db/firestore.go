@@ -3,7 +3,6 @@ package db
 import (
 	"context" // State handling across API boundaries; part of native GoLang API
 	"errors"
-	"fmt"
 	"log"
 
 	"cloud.google.com/go/firestore"   // Firestore-specific support
@@ -101,25 +100,24 @@ func AddSubscription(streamer_id string, channel_id string) error {
 }
 
 // Deletes a subscription from the firestore
-func DeleteSubscription(streamer_name string, channel_id string) error {
-	// Get a collection where the streamer name and channel id are identical to the parameters
-	iter := client.Collection(collection).Where("streamer_name", "==", streamer_name).Where("channel_id", "==", channel_id).Documents(ctx)
+func DeleteSubscription(streamer_id string, channel_id string) error {
+	// Tries to get the document with a matching streamer_id, if not found, returns an error
+	_, errNotFound := client.Collection(collection).Doc(streamer_id).Get(ctx)
+	if errNotFound != nil {
+		log.Println("Document not found")
+		return errNotFound
+	}
 
-	// Iterate through the collection found
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			fmt.Println(err)
-		}
-		// Deletes the document
-		_, err = client.Collection(collection).Doc(doc.Ref.ID).Delete(ctx)
-		if err != nil {
-			log.Printf("An error has occurred: %s", err)
-			return err
-		}
+	// If the document exists, removes the channel id from the array
+	_, err := client.Collection(collection).Doc(streamer_id).Update(ctx, []firestore.Update{
+		{
+			Path:  "channel_ids",
+			Value: firestore.ArrayRemove(channel_id),
+		},
+	})
+	if err != nil {
+		log.Println("Failed to remove channel id")
+		return err
 	}
 	return nil
 }

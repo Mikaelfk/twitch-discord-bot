@@ -26,6 +26,7 @@ func HandleRequest(url string, method string, resType interface{}, reqBody ...[]
 	var err error
 	if len(reqBody) == 1 {
 		req, err = http.NewRequest(method, url, bytes.NewBuffer(reqBody[0]))
+		req.Header.Add("Content-Type", "application/json")
 	} else {
 		req, err = http.NewRequest(method, url, nil)
 	}

@@ -67,7 +67,11 @@ func CreateSubscription(userId string, subType string) {
 
 	// do request to twitch to request webhook
 	var response creationConfirmation
-	util.HandleRequest(constants.UrlTwitchWebhooks, http.MethodPost, &response, json)
+	err = util.HandleRequest(constants.UrlTwitchWebhooks, http.MethodPost, &response, json)
+	if err != nil {
+		log.Println("Error while doing request to Twitch API, webhook not registered")
+		return
+	}
 
 	// hopefully get verification pending response
 	if response.Data[0].Status == "webhook_callback_verification_pending" {
@@ -102,6 +106,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					log.Println("Unable to read request body :(")
 					log.Println("Aborting verification...")
+					return
 				}
 
 				// create message to hash
@@ -122,6 +127,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 					if err != nil {
 						log.Println("Unable to parse request body from verification request")
 						log.Println("Aborting verification...")
+						return
 					}
 
 					// return challenge
@@ -134,10 +140,12 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 				} else {
 					log.Println("Signatures do not match :O")
 					log.Println("Aborting verification...")
+					return
 				}
 
 			} else {
 				log.Println("No signature, aborting verification")
+				return
 			}
 
 		} else if messageType == "notification" {
@@ -147,5 +155,4 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Recieved POST from (supposedly) Twitch with an unknown message type: " + messageType)
 		}
 	}
-
 }

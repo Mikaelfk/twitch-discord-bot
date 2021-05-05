@@ -7,6 +7,7 @@ import (
 
 	"twitch-discord-bot/command"
 	"twitch-discord-bot/db"
+	"twitch-discord-bot/twitchAPI"
 	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
@@ -94,7 +95,9 @@ func main() {
 		}
 	}
 
-	// close session when bot is stopped
+	log.Println("Bot ready for use! (:")
+
+	// close session when bot is stopeed
 	defer func() {
 		err := db.CloseClient()
 		if err != nil {

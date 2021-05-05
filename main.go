@@ -76,6 +76,14 @@ func main() {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
 
+	// possibly enable subscription functionality
+	if util.Config.EnableSubscriptionsFunctionality {
+		log.Println("Enabeling subscription functionality :O")
+		go twitchAPI.StartListener()
+	} else {
+		log.Println("Subscription functionality disabled :(")
+	}
+
 	// register slash-commands
 	for i := range commandDefinitions {
 		// try to register command

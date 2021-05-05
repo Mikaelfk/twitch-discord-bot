@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"log"
@@ -13,14 +14,22 @@ import (
 // Therefore, if the contents of the resType is important, make sure to check for empty values.
 //
 // IMPORTANT: Do not include spaces in the URL as it will make this method return EOF error.
-func HandleRequest(url string, method string, resType interface{}) error {
+func HandleRequest(url string, method string, resType interface{}, reqBody ...[]byte) error {
+
 	// only valid methods allowed. Can add more methods later if need be
 	if method != http.MethodGet && method != http.MethodPost && method != http.MethodPatch && method != http.MethodDelete {
 		return errors.New("invalid method")
 	}
 
 	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
+	var req *http.Request
+	var err error
+	if len(reqBody) == 1 {
+		req, err = http.NewRequest(method, url, bytes.NewBuffer(reqBody[0]))
+	} else {
+		req, err = http.NewRequest(method, url, nil)
+	}
+
 	if err != nil {
 		return err
 	}

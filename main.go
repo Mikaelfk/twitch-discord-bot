@@ -67,7 +67,7 @@ func registerCommands() {
 func main() {
 	// just log that bot is running
 	session.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is up (:")
+		log.Println("Bot is up, initializing...")
 	})
 
 	// open session to discord

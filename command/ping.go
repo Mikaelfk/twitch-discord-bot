@@ -1,8 +1,9 @@
 package command
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"twitch-discord-bot/util"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 //

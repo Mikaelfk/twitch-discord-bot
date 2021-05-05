@@ -73,15 +73,28 @@ func GetSubscriptions() []string {
 }
 
 // Gets the streamer name and discord channel id as parameters and adds a subscription to the firestore
-func addSubscription(streamer_name string, channel_id string) error {
+func AddSubscription(streamer_id string, channel_id string) error {
 
-	_, _, err := client.Collection(collection).Add(ctx, map[string]interface{}{
-		"streamer_name": streamer_name,
-		"channel_id":    channel_id,
+	_, errNotFound := client.Collection(collection).Doc(streamer_id).Get(ctx)
+	if errNotFound != nil {
+		_, err := client.Collection(collection).Doc(streamer_id).Set(ctx, map[string]interface{}{
+			"channel_ids": []interface{}{channel_id},
+		})
+		if err != nil {
+			log.Println("Could not create new document")
+			return err
+		}
+		return nil
+	}
+
+	_, err := client.Collection(collection).Doc(streamer_id).Update(ctx, []firestore.Update{
+		{
+			Path:  "channel_ids",
+			Value: firestore.ArrayUnion(channel_id),
+		},
 	})
-
 	if err != nil {
-		log.Printf("An error has occurred: %s", err)
+		log.Println("Could not add to array")
 		return err
 	}
 	return nil

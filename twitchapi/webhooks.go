@@ -118,7 +118,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 					// get json from verification request
 					var verificationReq creationVerification
-					err := json.NewDecoder(r.Body).Decode(&verificationReq)
+					err = json.Unmarshal([]byte(body), &verificationReq)
 					if err != nil {
 						log.Println("Unable to parse request body from verification request")
 						log.Println("Aborting verification...")

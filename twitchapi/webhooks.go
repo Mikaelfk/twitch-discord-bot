@@ -109,15 +109,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				// create message to hash
-				hmacMessage := []byte(fmt.Sprintf("%s%s%s", r.Header.Get("Twitch-Eventsub-Message-Id"), r.Header.Get("Twitch-Eventsub-Message-Timestamp"), string(body)))
-
-				// create hash with secret
-				hmac := hmac.New(sha256.New, []byte(util.Config.TwitchWebhooksSecret))
-				hmac.Write(hmacMessage)
-				signature := fmt.Sprintf("sha256=%s", hex.EncodeToString(hmac.Sum(nil)))
-
-				if reqSignature == signature {
+				if verifySignature(r.Header.Get("Twitch-Eventsub-Message-Id"), r.Header.Get("Twitch-Eventsub-Message-Timestamp"), string(body), reqSignature) {
 					// hell yeah it's verification time
 					log.Println("Signatures match! Responding to verification request :D")
 
@@ -155,4 +147,15 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Recieved POST from (supposedly) Twitch with an unknown message type: " + messageType)
 		}
 	}
+}
+
+func verifySignature(messageIDHeader string, timestampMessage string, body string, reqSignature string) bool {
+	// create message to hash
+	hmacMessage := []byte(fmt.Sprintf("%s%s%s", messageIDHeader, timestampMessage, body))
+
+	// create hash with secret
+	hmac := hmac.New(sha256.New, []byte(util.Config.TwitchWebhooksSecret))
+	hmac.Write(hmacMessage)
+	signature := fmt.Sprintf("sha256=%s", hex.EncodeToString(hmac.Sum(nil)))
+	return signature == reqSignature
 }

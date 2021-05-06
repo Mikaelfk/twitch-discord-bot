@@ -20,15 +20,15 @@ type twitchFollowList struct {
 	} `json:"pagination"`
 }
 
-// GetFollowList, gets the follower list of a user
+// GetFollowList gets the follower list of a user
 func GetFollowList(username string) ([]string, error) {
-	userID, err := util.GetUserId(username)
+	userID, err := util.GetUserID(username)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return []string{}, err
 	}
 	var twitchFollowListResponse twitchFollowList
-	err = util.HandleRequest(constants.UrlTwitchFollowlist+userID, http.MethodGet, &twitchFollowListResponse)
+	err = util.HandleRequest(constants.URLTwitchFollowlist+userID, http.MethodGet, &twitchFollowListResponse)
 
 	if err != nil {
 		log.Println("unable to get followers list")
@@ -48,7 +48,7 @@ func GetFollowList(username string) ([]string, error) {
 		cursor = twitchFollowListResponse.Pagination.Cursor
 		twitchFollowListResponse = twitchFollowList{}
 
-		err = util.HandleRequest(constants.UrlTwitchFollowlist+userID+"&after="+cursor, http.MethodGet, &twitchFollowListResponse)
+		err = util.HandleRequest(constants.URLTwitchFollowlist+userID+"&after="+cursor, http.MethodGet, &twitchFollowListResponse)
 
 		if err != nil {
 			log.Println("unable to get followers list by cursor")

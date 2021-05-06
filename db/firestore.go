@@ -22,7 +22,7 @@ type docFields struct {
 	ChannelIds []string `firestore:"channel_ids,omitempty"`
 }
 
-// GetChannelIdsByStreamerId gets all the channel ids by a streamer id
+// GetChannelIdsByStreamerID gets all the channel ids by a streamer id
 func GetChannelIdsByStreamerID(streamerID string) ([]string, error) {
 	// Gets the document with the given streamer id
 	doc, errNotFound := client.Collection(collection).Doc(streamerID).Get(ctx)
@@ -40,7 +40,7 @@ func GetChannelIdsByStreamerID(streamerID string) ([]string, error) {
 	return docData.ChannelIds, nil
 }
 
-// AddSubscription, takes the streamer id and discord channel id as parameters and adds a subscription to the firestore
+// AddSubscription takes the streamer id and discord channel id as parameters and adds a subscription to the firestore
 func AddSubscription(streamerID string, channelID string) error {
 	// Tries to get the document with a matching streamer_id, if not found, adds a new document
 	_, errNotFound := client.Collection(collection).Doc(streamerID).Get(ctx)
@@ -68,7 +68,7 @@ func AddSubscription(streamerID string, channelID string) error {
 	return nil
 }
 
-// DeleteSubscription, deletes a subscription from the firestore
+// DeleteSubscription deletes a subscription from the firestore
 func DeleteSubscription(streamerID string, channelID string) error {
 	// Tries to get the document with a matching streamer_id, if not found, returns an error
 	_, errNotFound := client.Collection(collection).Doc(streamerID).Get(ctx)
@@ -91,7 +91,7 @@ func DeleteSubscription(streamerID string, channelID string) error {
 	return nil
 }
 
-// InitDB, initalizes the database
+// InitDB initalizes the database
 func InitDB() {
 	// Firebase initialisation
 	ctx = context.Background()

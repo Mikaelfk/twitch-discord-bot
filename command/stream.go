@@ -9,7 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// Stream, stores stream information
+// Stream stores stream information
 type Stream struct {
 	ID          string `json:"id"`
 	UserID      string `json:"user_id"`
@@ -23,7 +23,7 @@ type Stream struct {
 	IsMature    bool   `json:"is_mature"`
 }
 
-// AllStreams, stores information for several streams
+// AllStreams stores information for several streams
 type AllStreams struct {
 	Data []struct{ Stream } `json:"data"`
 }
@@ -71,7 +71,7 @@ var (
 	// define commandHandler for this command
 	streamCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		var content = ""
-		URL := constants.UrlTwitchStreamInfo + "?first=" + strconv.Itoa(maxResults)
+		URL := constants.URLTwitchStreamInfo + "?first=" + strconv.Itoa(maxResults)
 
 		// Add the optional parameters if any
 		for k := 0; k < len(i.Data.Options); k++ {
@@ -123,7 +123,7 @@ var (
 						"\nCurrent Viewers: " + strconv.Itoa(streams.Data[i].ViewerCount) +
 						"\nStarted at: " + streams.Data[i].StartedAt +
 						"\nLanguage: " + streams.Data[i].Language +
-						"\nStream: " + constants.UrlTwitchStream + streams.Data[i].UserLogin +
+						"\nStream: " + constants.URLTwitchStream + streams.Data[i].UserLogin +
 						"\n----------------"
 			}
 		}

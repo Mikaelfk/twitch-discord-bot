@@ -78,7 +78,7 @@ var (
 	}
 )
 
-// RegisterFollowList, function for registering command for the bot to serve
+// RegisterFollowList function for registering command for the bot to serve
 func RegisterFollowList(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, followListCommand)
 	commandHandlers["follow-list"] = followListCommandHandler

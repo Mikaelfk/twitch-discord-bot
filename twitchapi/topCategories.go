@@ -7,22 +7,21 @@ import (
 	"twitch-discord-bot/util"
 )
 
-// TopCategoriesResult, a struct that stores all the category names
+// TopCategoriesResult a struct that stores all the category names
 type TopCategoriesResult struct {
 	Data []struct {
 		Name string `json:"name"`
 	} `json:"data"`
 }
 
-// GetTopCategories, gets the current top 13 categories on twitch
+// GetTopCategories gets the current top 13 categories on twitch
 func GetTopCategories() ([]string, error) {
-
 	// Stores all the categories
 	var categories []string
 	var topCategories TopCategoriesResult
 
 	// Calls a GET request to top games from the twitch API
-	err := util.HandleRequest(constants.UrlTwitchTopGames, "GET", &topCategories)
+	err := util.HandleRequest(constants.URLTwitchTopGames, "GET", &topCategories)
 
 	// Returns an error if it couldn't parse the request into the struct
 	if err != nil {
@@ -36,7 +35,6 @@ func GetTopCategories() ([]string, error) {
 
 	// Iterates through each category in the topCategories array
 	for i, category := range topCategories.Data {
-
 		categories = append(categories, category.Name)
 
 		// Stops iterating when the index reaches 12, this assures that it only returns the top 13 categories

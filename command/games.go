@@ -60,7 +60,7 @@ var (
 		games, err := findGames(i.Data.Options[0].StringValue(), num)
 		if err != nil {
 			content = constants.BotUnexpectedErrorMsg
-		} else if len(games.Data) <= 0 {
+		} else if len(games.Data) == 0 {
 			content = constants.BotNoResultsMsg
 		} else {
 
@@ -89,10 +89,9 @@ func RegisterGames(commands *[]discordgo.ApplicationCommand, commandHandlers map
 
 // findGames finds the 'first' games that is somewhat similar to gameName
 func findGames(gameName string, first int) (gamesData, error) {
-
 	// Replaces possible spaces with "-" (dashes) before calling the handleRequest method
 	gameName = strings.Join(strings.Split(gameName, " "), "-")
-	URL := constants.UrlTwitchGames + gameName + "&first=" + strconv.Itoa(first)
+	URL := constants.URLTwitchGames + gameName + "&first=" + strconv.Itoa(first)
 
 	var data gamesData
 	err := util.HandleRequest(URL, "GET", &data)

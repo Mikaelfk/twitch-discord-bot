@@ -33,14 +33,14 @@ var (
 	// define commandHandler for this command
 	channelCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
-		// Todo: Check if it is an int, if so - assume it is an ID and try to search with it
+		// Maybe check if it is an int, if so - assume it is an ID and try to search with it?
 		// r := []rune(i.Data.Options[0].StringValue())
 		var content string
 		var err error
 		var channels util.TwitchChannels
 
 		// Search by name
-		URL := constants.UrlTwitchChannelName + i.Data.Options[0].StringValue()
+		URL := constants.URLTwitchChannelName + i.Data.Options[0].StringValue()
 		err = util.HandleRequest(URL, http.MethodGet, &channels)
 
 		if err != nil {
@@ -69,7 +69,7 @@ var (
 		if channel.IsLive {
 			content += "\nStatus: Online" +
 				"\nStarted: " + channel.StartedAt +
-				"\nStream: " + constants.UrlTwitchStream + channel.LoginName
+				"\nStream: " + constants.URLTwitchStream + channel.LoginName
 		} else {
 			content += "\nStatus: Offline" +
 				"\nThumbnail: " + channel.Thumbnail

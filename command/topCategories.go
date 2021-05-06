@@ -38,7 +38,7 @@ var (
 	}
 )
 
-// RegisterTopCategories, function for registering command for the bot to serve
+// RegisterTopCategories function for registering command for the bot to serve
 func RegisterTopCategories(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, topCategoriesCommand)
 	commandHandlers["top-categories"] = topCategoriesCommandHandler

@@ -2,14 +2,14 @@
 package constants
 
 const (
-	UrlTwitchChannelId   = "https://api.twitch.tv/helix/channels?broadcaster_id=" // + [id]
-	UrlTwitchChannelName = "https://api.twitch.tv/helix/search/channels?query="   // + [broadcaster_name]
-	UrlTwitchStream      = "https://www.twitch.tv/"                               // + [broadcaster_name]
-	UrlTwitchStreamInfo  = "https://api.twitch.tv/helix/streams"
-	UrlTwitchGames       = "https://api.twitch.tv/helix/search/categories?query=" // + [game_name]
-	UrlTwitchTopGames    = "https://api.twitch.tv/helix/games/top"
-	UrlTwitchUserName    = "https://api.twitch.tv/helix/users?login="
-	UrlTwitchFollowlist  = "https://api.twitch.tv/helix/users/follows?from_id="
+	URLTwitchChannelID   = "https://api.twitch.tv/helix/channels?broadcaster_id=" // + [id]
+	URLTwitchChannelName = "https://api.twitch.tv/helix/search/channels?query="   // + [broadcaster_name]
+	URLTwitchStream      = "https://www.twitch.tv/"                               // + [broadcaster_name]
+	URLTwitchStreamInfo  = "https://api.twitch.tv/helix/streams"
+	URLTwitchGames       = "https://api.twitch.tv/helix/search/categories?query=" // + [game_name]
+	URLTwitchTopGames    = "https://api.twitch.tv/helix/games/top"
+	URLTwitchUserName    = "https://api.twitch.tv/helix/users?login="
+	URLTwitchFollowlist  = "https://api.twitch.tv/helix/users/follows?from_id="
 
 	TwitchApiResolution     = "52x72.jpg"
 	DiscordBotImgResolution = "200x150"

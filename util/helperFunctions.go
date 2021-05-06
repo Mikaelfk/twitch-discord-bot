@@ -33,11 +33,10 @@ type twitchUserSearch struct {
 	} `json:"data"`
 }
 
-// SearchByName takes in a searchName string and a TwitchChannels struct and returns the channel with DisplayName or LoginName like the search.
-// If nothing was found, return error and empty Channel
+// SearchByName takes in a searchName string and a TwitchChannels struct and returns the channel with DisplayName or LoginName like the search
+// if nothing was found, return error and empty Channel
 func SearchByName(searchName string, channels TwitchChannels) (Channel, error) {
 	for i := 0; i < len(channels.Data); i++ {
-
 		// If the login-name or the displayed name of channel/streamer is equal search...
 		if channels.Data[i].Channel.LoginName == searchName || channels.Data[i].Channel.DisplayName == searchName {
 			return channels.Data[i].Channel, nil
@@ -46,11 +45,11 @@ func SearchByName(searchName string, channels TwitchChannels) (Channel, error) {
 	return Channel{}, errors.New("no search result found")
 }
 
-// GetUserID takes a username string and return the user id as a string.
-// If the user does not exist, an error is returned
-func GetUserId(username string) (string, error) {
+// GetUserID takes a username string and return the user id as a string
+// if the user does not exist, an error is returned
+func GetUserID(username string) (string, error) {
 	var twitchUserSearchResponse twitchUserSearch
-	err := HandleRequest(constants.UrlTwitchUserName+username, http.MethodGet, &twitchUserSearchResponse)
+	err := HandleRequest(constants.URLTwitchUserName+username, http.MethodGet, &twitchUserSearchResponse)
 
 	if err != nil {
 		log.Println("unable to get user id")
@@ -66,8 +65,8 @@ func GetUserId(username string) (string, error) {
 	return userID, nil
 }
 
-// ChannelIdExists checks if a channel id exists for a particular streamer
-func ChannelIdExists(streamerID string, channelID string) bool {
+// ChannelIDExists checks if a channel id exists for a particular streamer
+func ChannelIDExists(streamerID string, channelID string) bool {
 	channelIDs, err := db.GetChannelIdsByStreamerID(streamerID)
 	if err != nil {
 		log.Println("streamer id not found")

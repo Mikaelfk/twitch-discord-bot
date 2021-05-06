@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Config, stores config structs
+// Config stores config structs
 var Config configuration
 
 type configuration struct {
@@ -16,7 +16,7 @@ type configuration struct {
 	TwitchAuthToken string
 }
 
-// LoadConfig, loads the config values
+// LoadConfig loads the config values
 func LoadConfig() error {
 	file, err := os.Open("config.json")
 	if err != nil {

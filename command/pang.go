@@ -1,8 +1,9 @@
 package command
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"twitch-discord-bot/util"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 //
@@ -22,7 +23,7 @@ var (
 	}
 )
 
-// function for registering command for the bot to serve
+// RegisterPang function for registering command for the bot to serve
 func RegisterPang(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, pangCommand)
 	commandHandlers["pang"] = pangCommandHandler

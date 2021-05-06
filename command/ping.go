@@ -1,3 +1,4 @@
+// Package command provides commands for the bot
 package command
 
 import (
@@ -23,7 +24,7 @@ var (
 	}
 )
 
-// function for registering command for the bot to serve
+// RegisterPing function for registering command for the bot to serve
 func RegisterPing(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, pingCommand)
 	commandHandlers["ping"] = pingCommandHandler

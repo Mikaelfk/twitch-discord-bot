@@ -76,17 +76,22 @@ func main() {
 	}
 
 	// register slash-commands
-	for _, v := range commandDefinitions {
+	for i := range commandDefinitions {
 		// try to register command
-		_, err := session.ApplicationCommandCreate(session.State.User.ID, util.Config.DiscordServerID, &v)
+		_, err := session.ApplicationCommandCreate(session.State.User.ID, util.Config.DiscordServerID, &commandDefinitions[i])
 		// if not log error
 		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+			log.Panicf("Cannot create '%v' command: %v", commandDefinitions[i].Name, err)
 		}
 	}
 
 	// close session when bot is stopeed
-	defer session.Close()
+	defer func() {
+		err := session.Close()
+		if err != nil {
+			log.Println("unable to gracefully close session")
+		}
+	}()
 
 	// graceful shutdown when Interrupting
 	stop := make(chan os.Signal, 1)

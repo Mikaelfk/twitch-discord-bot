@@ -1,3 +1,4 @@
+// Package db provides database functionality
 package db
 
 import (
@@ -16,32 +17,36 @@ var client *firestore.Client
 // Collection name in Firestore
 var collection = "Subscriptions"
 
-// docFields contains the fields recieved from the firestore document
+// docFields contains the fields received from the firestore document
 type docFields struct {
-	Channel_ids []string `firestore:"channel_ids,omitempty"`
+	ChannelIds []string `firestore:"channel_ids,omitempty"`
 }
 
-// Gets all the channel ids by a streamer id
-func GetChannelIdsByStreamerId(streamer_id string) ([]string, error) {
+// GetChannelIdsByStreamerID gets all the channel ids by a streamer id
+func GetChannelIdsByStreamerID(streamerID string) ([]string, error) {
 	// Gets the document with the given streamer id
-	doc, errNotFound := client.Collection(collection).Doc(streamer_id).Get(ctx)
+	doc, errNotFound := client.Collection(collection).Doc(streamerID).Get(ctx)
 	if errNotFound != nil {
 		log.Println("Document not found")
 		return nil, errNotFound
 	}
 	// Stores the data in a custom struct and returns the string slice with the ids
 	var docData docFields
-	doc.DataTo(&docData)
-	return docData.Channel_ids, nil
+	err := doc.DataTo(&docData)
+	if err != nil {
+		log.Println("failed to parse document to the struct when trying to get channel with streamer id")
+		return nil, err
+	}
+	return docData.ChannelIds, nil
 }
 
-// Takes the streamer id and discord channel id as parameters and adds a subscription to the firestore
-func AddSubscription(streamer_id string, channel_id string) error {
+// AddSubscription takes the streamer id and discord channel id as parameters and adds a subscription to the firestore
+func AddSubscription(streamerID string, channelID string) error {
 	// Tries to get the document with a matching streamer_id, if not found, adds a new document
-	_, errNotFound := client.Collection(collection).Doc(streamer_id).Get(ctx)
+	_, errNotFound := client.Collection(collection).Doc(streamerID).Get(ctx)
 	if errNotFound != nil {
-		_, err := client.Collection(collection).Doc(streamer_id).Set(ctx, map[string]interface{}{
-			"channel_ids": []interface{}{channel_id},
+		_, err := client.Collection(collection).Doc(streamerID).Set(ctx, map[string]interface{}{
+			"channel_ids": []interface{}{channelID},
 		})
 		if err != nil {
 			log.Println("Could not create new document")
@@ -50,10 +55,10 @@ func AddSubscription(streamer_id string, channel_id string) error {
 		return nil
 	}
 	// If the document exists, adds the channel id to the array in the document
-	_, err := client.Collection(collection).Doc(streamer_id).Update(ctx, []firestore.Update{
+	_, err := client.Collection(collection).Doc(streamerID).Update(ctx, []firestore.Update{
 		{
 			Path:  "channel_ids",
-			Value: firestore.ArrayUnion(channel_id),
+			Value: firestore.ArrayUnion(channelID),
 		},
 	})
 	if err != nil {
@@ -63,20 +68,20 @@ func AddSubscription(streamer_id string, channel_id string) error {
 	return nil
 }
 
-// Deletes a subscription from the firestore
-func DeleteSubscription(streamer_id string, channel_id string) error {
+// DeleteSubscription deletes a subscription from the firestore
+func DeleteSubscription(streamerID string, channelID string) error {
 	// Tries to get the document with a matching streamer_id, if not found, returns an error
-	_, errNotFound := client.Collection(collection).Doc(streamer_id).Get(ctx)
+	_, errNotFound := client.Collection(collection).Doc(streamerID).Get(ctx)
 	if errNotFound != nil {
 		log.Println("Document not found")
 		return errNotFound
 	}
 
 	// If the document exists, removes the channel id from the array
-	_, err := client.Collection(collection).Doc(streamer_id).Update(ctx, []firestore.Update{
+	_, err := client.Collection(collection).Doc(streamerID).Update(ctx, []firestore.Update{
 		{
 			Path:  "channel_ids",
-			Value: firestore.ArrayRemove(channel_id),
+			Value: firestore.ArrayRemove(channelID),
 		},
 	})
 	if err != nil {
@@ -86,6 +91,7 @@ func DeleteSubscription(streamer_id string, channel_id string) error {
 	return nil
 }
 
+// InitDB initializes the database
 func InitDB() {
 	// Firebase initialisation
 	ctx = context.Background()

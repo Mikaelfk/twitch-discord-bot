@@ -1,4 +1,5 @@
-package twitchAPI
+// Package twitchapi provides helper functions for the twitch API
+package twitchapi
 
 import (
 	"errors"
@@ -19,16 +20,22 @@ type twitchFollowList struct {
 	} `json:"pagination"`
 }
 
+// GetFollowList gets the follower list of a user
 func GetFollowList(username string) ([]string, error) {
-	userID, err := util.GetUserId(username)
+	userID, err := util.GetUserID(username)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return []string{}, err
 	}
 	var twitchFollowListResponse twitchFollowList
-	util.HandleRequest(constants.UrlTwitchFollowlist+userID, http.MethodGet, &twitchFollowListResponse)
+	err = util.HandleRequest(constants.URLTwitchFollowlist+userID, http.MethodGet, &twitchFollowListResponse)
 
-	if len(twitchFollowListResponse.Data) <= 0 {
+	if err != nil {
+		log.Println("unable to get followers list")
+		return nil, err
+	}
+
+	if len(twitchFollowListResponse.Data) == 0 {
 		log.Println("User does not follow anyone")
 		return []string{}, errors.New("user does not follow anyone")
 	}
@@ -41,7 +48,13 @@ func GetFollowList(username string) ([]string, error) {
 		cursor = twitchFollowListResponse.Pagination.Cursor
 		twitchFollowListResponse = twitchFollowList{}
 
-		util.HandleRequest(constants.UrlTwitchFollowlist+userID+"&after="+cursor, http.MethodGet, &twitchFollowListResponse)
+		err = util.HandleRequest(constants.URLTwitchFollowlist+userID+"&after="+cursor, http.MethodGet, &twitchFollowListResponse)
+
+		if err != nil {
+			log.Println("unable to get followers list by cursor")
+			return nil, err
+		}
+
 		for _, s := range twitchFollowListResponse.Data {
 			streamers = append(streamers, s.ToName)
 		}

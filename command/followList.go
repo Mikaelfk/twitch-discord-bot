@@ -2,7 +2,8 @@ package command
 
 import (
 	"fmt"
-	"twitch-discord-bot/twitchAPI"
+	"log"
+	"twitch-discord-bot/twitchapi"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -26,18 +27,28 @@ var (
 	followListCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		username := fmt.Sprintf("%v", i.Data.Options[0].Value)
 		// Get all the streamers in a slice
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionApplicationCommandResponseData{
-					Content: "The user " + username + " follows:",
-				},
-			})
-		streamers, err := twitchAPI.GetFollowList(username)
+		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionApplicationCommandResponseData{
+				Content: "The user " + username + " follows:",
+			},
+		})
+
+		if err != nil {
+			log.Println("unable to respond to the follow list command")
+			return
+		}
+
+		streamers, err := twitchapi.GetFollowList(username)
 		if err != nil {
 			// Prints th error to the user
-			s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-						Content: err.Error(),
-					})
+			_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				Content: err.Error(),
+			})
+			if err != nil {
+				log.Println("unable to send follow-up error")
+				return
+			}
 		} else {
 			streamersString := ""
 			index := 0
@@ -55,15 +66,19 @@ var (
 			streamersStringArray = append(streamersStringArray, streamersString)
 			// Prints all the streamers that did not fit in the first message
 			for _, v := range streamersStringArray {
-				s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
+				_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
 					Content: v,
 				})
+				if err != nil {
+					log.Println("unable to send follow-up message")
+					return
+				}
 			}
 		}
 	}
 )
 
-// function for registering command for the bot to serve
+// RegisterFollowList function for registering command for the bot to serve
 func RegisterFollowList(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, followListCommand)
 	commandHandlers["follow-list"] = followListCommandHandler

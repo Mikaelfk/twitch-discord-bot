@@ -3,6 +3,7 @@ package twitchapi
 import (
 	"errors"
 	"log"
+	"strings"
 	"twitch-discord-bot/constants"
 	"twitch-discord-bot/util"
 )
@@ -24,7 +25,13 @@ type teamStruct struct {
 	} `json:"data"`
 }
 
-// Gets the team name
+type StreamInfo struct {
+	Data []struct {
+		UserName string `json:"user_name"`
+	} `json:"data"`
+}
+
+// GetTeamName gets the team name
 func GetTeamName(name string) (string, error) {
 
 	var teamName string
@@ -43,7 +50,7 @@ func GetTeamName(name string) (string, error) {
 
 }
 
-// Gets all members of a twitch team
+// GetAllTeamMembers gets all members of a twitch team
 func GetAllTeamMembers(name string) ([]string, error) {
 	var teamMembers []string
 	var teamStruct teamStruct
@@ -62,12 +69,38 @@ func GetAllTeamMembers(name string) ([]string, error) {
 	return teamMembers, nil
 }
 
-// Gets team members that are live
+// GetLiveTeamMembers gets team members that are live
 func GetLiveTeamMembers(name string) ([]string, error) {
 
-	var channelStruct util.Channel
-	var members []string
-	var liveMembers []string
+	var liveTeamMembers []string
+	var teamStruct teamStruct
 
-	members, _ = GetAllTeamMembers(name)
+	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamStruct)
+
+	if err != nil {
+		log.Fatal(err)
+		return nil, errors.New("no team found")
+	}
+
+	bigRequest := constants.URLTwitchStreamInfo + "?"
+
+	for _, member := range teamStruct.Data[0].Users {
+		bigRequest += "user_id=" + member.UserID + "&"
+	}
+
+	bigRequest = strings.TrimSuffix(bigRequest, "&")
+
+	print(bigRequest)
+	var streamInfo StreamInfo
+	err = util.HandleRequest(bigRequest, "GET", &streamInfo)
+	if err != nil {
+		log.Println("unable to retrieve streamer info")
+		return nil, err
+	}
+
+	for _, liveMember := range streamInfo.Data {
+		liveTeamMembers = append(liveTeamMembers, liveMember.UserName)
+	}
+
+	return liveTeamMembers, nil
 }

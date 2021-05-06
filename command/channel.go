@@ -24,7 +24,7 @@ var (
 
 			Type:        discordgo.ApplicationCommandOptionString,
 			Name:        "login-name",
-			Description: "Get info of particular stream by name ", //TODO: ..or ID
+			Description: "Get info of particular stream by name ", // or ID?
 			Required:    true,
 		},
 		},
@@ -34,7 +34,7 @@ var (
 	channelCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 		// Todo: Check if it is an int, if so - assume it is an ID and try to search with it
-		//r := []rune(i.Data.Options[0].StringValue())
+		// r := []rune(i.Data.Options[0].StringValue())
 		var content string
 		var err error
 		var channels util.TwitchChannels

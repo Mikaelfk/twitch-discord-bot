@@ -1,4 +1,4 @@
-package twitchAPI
+package twitchapi
 
 import (
 	"errors"
@@ -7,14 +7,14 @@ import (
 	"twitch-discord-bot/util"
 )
 
-// A struct that stores all the category names
+// TopCategoriesResult, a struct that stores all the category names
 type TopCategoriesResult struct {
 	Data []struct {
 		Name string `json:"name"`
 	} `json:"data"`
 }
 
-// Gets the current top 13 categories on twitch
+// GetTopCategories, gets the current top 13 categories on twitch
 func GetTopCategories() ([]string, error) {
 
 	// Stores all the categories

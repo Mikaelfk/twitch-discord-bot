@@ -1,3 +1,4 @@
+// Package constants provides often used values
 package constants
 
 const (
@@ -17,8 +18,7 @@ const (
 	ParaGameId    = "game_id="
 	ParaLanguage  = "language="
 
-	// Discord Bot Error Messages
-	BotUnexpectedErrorMsg = "I'm vewy sorwy but somwthing wierd happened... >0<"
+	BotUnexpectedErrorMsg = "I'm vewy sorwy but somwthing weird happened... >0<"
 	BotNoResultsMsg       = "I'm so sowwy... I didn't find anything... (o.O)"
 	BotNoActiveStreamsMsg = "Sowwy... There doesn't seem to be a stream like that active at the moment <0.o>"
 	BotNoGames            = "...I'm afraid there are no games like that.. sowwy >.<"

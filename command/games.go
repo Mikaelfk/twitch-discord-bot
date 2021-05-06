@@ -1,17 +1,17 @@
 package command
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"strconv"
 	"strings"
 	"twitch-discord-bot/constants"
 	"twitch-discord-bot/util"
+
+	"github.com/bwmarrin/discordgo"
 )
 
-
 type game struct {
-	ArtUrl string `json:"box_art_url"`
-	Id     string `json:"id"`
+	ArtURL string `json:"box_art_url"`
+	ID     string `json:"id"`
 	Name   string `json:"name"`
 }
 
@@ -35,13 +35,13 @@ var (
 			Description: "Gets game IDs by name.",
 			Required:    true,
 		},
-		{
+			{
 
-			Type:        discordgo.ApplicationCommandOptionInteger,
-			Name:        "num-games",
-			Description: "Specify how many results you want. (up to 10)",
-			Required:    false,
-		},
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "num-games",
+				Description: "Specify how many results you want. (up to 10)",
+				Required:    false,
+			},
 		},
 	}
 
@@ -49,14 +49,13 @@ var (
 	gamesCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 		num := numGamesDefault
-		if len(i.Data.Options)==2{
+		if len(i.Data.Options) == 2 {
 			num = int(i.Data.Options[1].IntValue())
 			if num > 10 {
 				num = 10
 			}
 		}
 		var content = ""
-
 
 		games, err := findGames(i.Data.Options[0].StringValue(), num)
 		if err != nil {
@@ -65,17 +64,17 @@ var (
 			content = constants.BotNoResultsMsg
 		} else {
 
-			if len(games.Data)<num{
+			if len(games.Data) < num {
 				// if the length of the twitch api response is shorter than the requested amount, then...
 				num = len(games.Data)
 			}
-			for index:=0; index < num; index++{
-				parts := strings.Split(games.Data[index].ArtUrl, "52x72.jpg")
-				icon := parts[0]+constants.DiscordBotImgResolution+".jpg"
-				content +=  "\n--------------"+
-				    "\nName: "+games.Data[index].Name+
-					"\nId:   "+games.Data[index].Id+
-					"\nIcon: "+icon
+			for index := 0; index < num; index++ {
+				parts := strings.Split(games.Data[index].ArtURL, "52x72.jpg")
+				icon := parts[0] + constants.DiscordBotImgResolution + ".jpg"
+				content += "\n--------------" +
+					"\nName: " + games.Data[index].Name +
+					"\nId:   " + games.Data[index].ID +
+					"\nIcon: " + icon
 			}
 		}
 		util.DiscordBotResponder(content, s, i)
@@ -88,12 +87,11 @@ func RegisterGames(commands *[]discordgo.ApplicationCommand, commandHandlers map
 	commandHandlers[gamesCommandWord] = gamesCommandHandler
 }
 
-
-//findGames finds the 'first' games that is somewhat similar to gameName
+// findGames finds the 'first' games that is somewhat similar to gameName
 func findGames(gameName string, first int) (gamesData, error) {
 
-	//Replaces possible spaces with "-" (dashes) before calling the handleRequest method
-	gameName = strings.Join(strings.Split(gameName , " "),"-")
+	// Replaces possible spaces with "-" (dashes) before calling the handleRequest method
+	gameName = strings.Join(strings.Split(gameName, " "), "-")
 	URL := constants.UrlTwitchGames + gameName + "&first=" + strconv.Itoa(first)
 
 	var data gamesData
@@ -101,4 +99,3 @@ func findGames(gameName string, first int) (gamesData, error) {
 
 	return data, err
 }
-

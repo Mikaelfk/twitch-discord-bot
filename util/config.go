@@ -1,3 +1,4 @@
+// Package util provides utility functions
 package util
 
 import (
@@ -5,7 +6,7 @@ import (
 	"os"
 )
 
-// store config ciles
+// Config, stores config structs
 var Config configuration
 
 type configuration struct {
@@ -15,6 +16,7 @@ type configuration struct {
 	TwitchAuthToken string
 }
 
+// LoadConfig, loads the config values
 func LoadConfig() error {
 	file, err := os.Open("config.json")
 	if err != nil {

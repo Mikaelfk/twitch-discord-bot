@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"log"
+	"strings"
 	"twitch-discord-bot/twitchapi"
 	"twitch-discord-bot/util"
 
@@ -60,7 +61,7 @@ var (
 			// Prints all the streamers that did not fit in the first message
 			for _, v := range streamersStringArray {
 				_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-					Content: v,
+					Content: strings.TrimSuffix(v, ", "),
 				})
 				if err != nil {
 					log.Println("unable to send follow-up message")

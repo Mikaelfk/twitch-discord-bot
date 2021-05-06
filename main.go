@@ -7,7 +7,7 @@ import (
 
 	"twitch-discord-bot/command"
 	"twitch-discord-bot/db"
-	"twitch-discord-bot/twitchAPI"
+	"twitch-discord-bot/twitchapi"
 	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
@@ -80,7 +80,7 @@ func main() {
 	// possibly enable subscription functionality
 	if util.Config.EnableSubscriptionsFunctionality {
 		log.Println("Enabeling subscription functionality :O")
-		go twitchAPI.StartListener()
+		go twitchapi.StartListener()
 	} else {
 		log.Println("Subscription functionality disabled :(")
 	}

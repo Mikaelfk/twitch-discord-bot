@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 )
 
@@ -33,8 +34,16 @@ func HandleRequest(url string, method string, resType interface{}) error {
 	}
 
 	err = json.NewDecoder(res.Body).Decode(&resType)
+	if err != nil {
+		log.Println("unable to decode response")
+		return err
+	}
 
-	res.Body.Close()
+	err = res.Body.Close()
+	if err != nil {
+		log.Println("unable to close body")
+		return err
+	}
 
 	// returns the error, which is nil if everything is ok. However, this doesn't mean that the resType actually has the desired data (additional checks needed).
 	return err

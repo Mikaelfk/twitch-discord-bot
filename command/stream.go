@@ -78,7 +78,7 @@ var (
 			if i.Data.Options[k].Name == streamCommand.Options[0].Name {
 				URL += "&" + constants.ParaUserLogin + i.Data.Options[k].StringValue()
 			} else if i.Data.Options[k].Name == streamCommand.Options[3].Name {
-				URL += "&" + constants.ParaGameId + strconv.Itoa(int(i.Data.Options[k].IntValue()))
+				URL += "&" + constants.ParaGameID + strconv.Itoa(int(i.Data.Options[k].IntValue()))
 			} else if i.Data.Options[k].Name == streamCommand.Options[2].Name {
 				URL += "&" + constants.ParaLanguage + i.Data.Options[k].StringValue()
 			} else if i.Data.Options[k].Name == streamCommand.Options[1].Name {
@@ -91,7 +91,7 @@ var (
 					util.DiscordBotResponder(constants.BotNoGames, s, i)
 					return
 				}
-				URL += "&" + constants.ParaGameId + games.Data[0].ID // just get the first (and only) element
+				URL += "&" + constants.ParaGameID + games.Data[0].ID // just get the first (and only) element
 			} else {
 				// This should never really happen...
 				util.DiscordBotResponder(constants.BotUnexpectedErrorMsg, s, i)

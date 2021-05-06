@@ -1,6 +1,7 @@
 // Package constants provides often used values
 package constants
 
+// Often used constants
 const (
 	URLTwitchChannelID   = "https://api.twitch.tv/helix/channels?broadcaster_id=" // + [id]
 	URLTwitchChannelName = "https://api.twitch.tv/helix/search/channels?query="   // + [broadcaster_name]
@@ -11,11 +12,11 @@ const (
 	URLTwitchUserName    = "https://api.twitch.tv/helix/users?login="
 	URLTwitchFollowlist  = "https://api.twitch.tv/helix/users/follows?from_id="
 
-	TwitchApiResolution     = "52x72.jpg"
+	TwitchAPIResolution     = "52x72.jpg"
 	DiscordBotImgResolution = "200x150"
 
 	ParaUserLogin = "user_login="
-	ParaGameId    = "game_id="
+	ParaGameID    = "game_id="
 	ParaLanguage  = "language="
 
 	BotUnexpectedErrorMsg = "I'm vewy sorwy but somwthing weird happened... >0<"

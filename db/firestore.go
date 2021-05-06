@@ -91,7 +91,7 @@ func DeleteSubscription(streamerID string, channelID string) error {
 	return nil
 }
 
-// InitDB initalizes the database
+// InitDB initializes the database
 func InitDB() {
 	// Firebase initialisation
 	ctx = context.Background()

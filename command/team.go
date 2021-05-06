@@ -22,7 +22,7 @@ var (
 	teamCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 		teamName, _ := twitchAPI.GetTeamName("luminosity")
-		members, _ := twitchAPI.GetTeamMembers("luminosity")
+		members, _ := twitchAPI.GetAllTeamMembers("luminosity")
 
 		responseString := "Team name: " + teamName + "\n"
 

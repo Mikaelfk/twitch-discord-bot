@@ -1,7 +1,7 @@
 package command
 
 import (
-	"twitch-discord-bot/twitchAPI"
+	"twitch-discord-bot/twitchapi"
 	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
@@ -21,8 +21,8 @@ var (
 	// define commandHandler for this command
 	teamCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
-		teamName, _ := twitchAPI.GetTeamName("luminosity")
-		members, _ := twitchAPI.GetAllTeamMembers("luminosity")
+		teamName, _ := twitchapi.GetTeamName("luminosity")
+		members, _ := twitchapi.GetAllTeamMembers("luminosity")
 
 		responseString := "Team name: " + teamName + "\n"
 

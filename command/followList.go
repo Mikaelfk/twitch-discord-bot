@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"twitch-discord-bot/twitchapi"
+	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -25,19 +26,10 @@ var (
 
 	// define commandHandler for this command
 	followListCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		username := fmt.Sprintf("%v", i.Data.Options[0].Value)
 		// Get all the streamers in a slice
-		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionApplicationCommandResponseData{
-				Content: "The user " + username + " follows:",
-			},
-		})
-
-		if err != nil {
-			log.Println("unable to respond to the follow list command")
-			return
-		}
+		username := fmt.Sprintf("%v", i.Data.Options[0].Value)
+		messageString := "The user " + username + " follows:"
+		util.DiscordBotResponder(messageString, s, i)
 
 		streamers, err := twitchapi.GetFollowList(username)
 		if err != nil {
@@ -49,6 +41,7 @@ var (
 				log.Println("unable to send follow-up error")
 				return
 			}
+
 		} else {
 			streamersString := ""
 			index := 0

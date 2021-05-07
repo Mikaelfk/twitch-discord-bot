@@ -67,7 +67,7 @@ var (
 	}
 )
 
-// function for registering command for the bot to serve
+// RegisterTeam function for registering command for the bot to serve
 func RegisterTeam(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, teamCommand)
 	commandHandlers["team"] = teamCommandHandler

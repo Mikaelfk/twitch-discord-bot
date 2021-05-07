@@ -25,6 +25,7 @@ type teamStruct struct {
 	} `json:"data"`
 }
 
+// StreamInfo stores the username of streamers
 type StreamInfo struct {
 	Data []struct {
 		UserName string `json:"user_name"`
@@ -33,10 +34,9 @@ type StreamInfo struct {
 
 // TeamExist returns true if a team exists
 func TeamExist(name string) (bool, error) {
-	var teamStruct teamStruct
+	var teamInfo teamStruct
 
-	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamStruct)
-
+	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamInfo)
 	if err != nil {
 		log.Fatal(err)
 		return false, errors.New("no team found")
@@ -47,16 +47,16 @@ func TeamExist(name string) (bool, error) {
 // GetAllTeamMembers gets all members of a twitch team
 func GetAllTeamMembers(name string) ([]string, error) {
 	var teamMembers []string
-	var teamStruct teamStruct
+	var teamInfo teamStruct
 
-	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamStruct)
+	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamInfo)
 
 	if err != nil {
 		log.Fatal(err)
 		return nil, errors.New("no team found")
 	}
 
-	for _, member := range teamStruct.Data[0].Users {
+	for _, member := range teamInfo.Data[0].Users {
 		teamMembers = append(teamMembers, member.UserName)
 	}
 
@@ -65,20 +65,17 @@ func GetAllTeamMembers(name string) ([]string, error) {
 
 // GetLiveTeamMembers gets team members that are live
 func GetLiveTeamMembers(name string) ([]string, error) {
-
 	var liveTeamMembers []string
-	var teamStruct teamStruct
-
-	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamStruct)
+	var teamInfo teamStruct
+	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamInfo)
 
 	if err != nil {
 		log.Fatal(err)
 		return nil, errors.New("no team found")
 	}
-
 	bigRequest := constants.URLTwitchStreamInfo + "?"
 
-	for _, member := range teamStruct.Data[0].Users {
+	for _, member := range teamInfo.Data[0].Users {
 		bigRequest += "user_id=" + member.UserID + "&"
 	}
 

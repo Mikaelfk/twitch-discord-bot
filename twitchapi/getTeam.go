@@ -31,23 +31,17 @@ type StreamInfo struct {
 	} `json:"data"`
 }
 
-// GetTeamName gets the team name
-func GetTeamName(name string) (string, error) {
-
-	var teamName string
+// TeamExist returns true if a team exists
+func TeamExist(name string) (bool, error) {
 	var teamStruct teamStruct
 
 	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamStruct)
 
 	if err != nil {
 		log.Fatal(err)
-		return "", errors.New("no team found")
+		return false, errors.New("no team found")
 	}
-
-	teamName = teamStruct.Data[0].TeamName
-
-	return teamName, nil
-
+	return true, nil
 }
 
 // GetAllTeamMembers gets all members of a twitch team
@@ -90,7 +84,6 @@ func GetLiveTeamMembers(name string) ([]string, error) {
 
 	bigRequest = strings.TrimSuffix(bigRequest, "&")
 
-	print(bigRequest)
 	var streamInfo StreamInfo
 	err = util.HandleRequest(bigRequest, "GET", &streamInfo)
 	if err != nil {

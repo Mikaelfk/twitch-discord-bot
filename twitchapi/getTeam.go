@@ -41,6 +41,10 @@ func TeamExist(name string) (bool, error) {
 		log.Fatal(err)
 		return false, errors.New("no team found")
 	}
+	if teamInfo.Data == nil {
+		return false, nil
+	}
+
 	return true, nil
 }
 

@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"log"
 	"twitch-discord-bot/constants"
 	"twitch-discord-bot/twitchapi"
@@ -26,7 +25,7 @@ var (
 				Type:        discordgo.ApplicationCommandOptionBoolean,
 				Name:        "is-live",
 				Description: "Boolean for live",
-				Required:    false,
+				Required:    true,
 			},
 		},
 	}
@@ -34,32 +33,36 @@ var (
 	// define commandHandler for this command
 	teamCommandHandler = func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
-		var members []string
-
-		teamName := fmt.Sprintf("%v", i.Data.Options[0].Value)
-		isLive := i.Data.Options[1].BoolValue()
-
-		print(teamName)
-		print(isLive)
+		teamName := i.Data.Options[0].StringValue()
 
 		exist, err := twitchapi.TeamExist(teamName)
 		if err != nil {
 			log.Println("unexpected error")
+			util.DiscordBotResponder(constants.BotUnexpectedErrorMsg, s, i)
 			return
 		}
 
+		print("i get here")
+
 		if !exist {
 			util.DiscordBotResponder(constants.BotNoResultsMsg, s, i)
-		}
-
-		if isLive {
-			members, _ = twitchapi.GetLiveTeamMembers(teamName)
-		} else {
-			members, _ = twitchapi.GetAllTeamMembers(teamName)
+			return
 		}
 
 		responseString := "Team name: " + teamName + "\n"
-		responseString += "Team members: \n"
+
+		var members []string
+
+		isLive := i.Data.Options[1].BoolValue()
+
+		if isLive {
+			responseString += "Live team members: \n"
+			members, _ = twitchapi.GetLiveTeamMembers(teamName)
+		} else {
+			responseString += "Team members: \n"
+			members, _ = twitchapi.GetAllTeamMembers(teamName)
+		}
+
 		for _, member := range members {
 			responseString += member + ", "
 		}

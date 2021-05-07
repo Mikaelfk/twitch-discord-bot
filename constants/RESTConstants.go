@@ -11,6 +11,7 @@ const (
 	URLTwitchTopGames    = "https://api.twitch.tv/helix/games/top"
 	URLTwitchUserName    = "https://api.twitch.tv/helix/users?login="
 	URLTwitchFollowlist  = "https://api.twitch.tv/helix/users/follows?from_id="
+	URLTwitchGetTeams    = "https://api.twitch.tv/helix/teams?name=" // + [team name]
 
 	TwitchAPIResolution     = "52x72.jpg"
 	DiscordBotImgResolution = "200x150"

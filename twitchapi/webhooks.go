@@ -12,7 +12,12 @@ import (
 	"strconv"
 	"twitch-discord-bot/constants"
 	"twitch-discord-bot/util"
+
+	"github.com/bwmarrin/discordgo"
 )
+
+// bot session for sending messages and such
+var discordSession *discordgo.Session
 
 type createWebhook struct {
 	Type      string `json:"type"`
@@ -37,7 +42,8 @@ type creationVerification struct {
 	Challenge string `json:"challenge"`
 }
 
-func StartListener() {
+func StartListener(session *discordgo.Session) {
+	discordSession = session
 	http.HandleFunc("/", requestHandler)
 	log.Println("Subscription functionality enabled, now listening on port ", util.Config.Port)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(util.Config.Port), nil))

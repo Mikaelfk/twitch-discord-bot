@@ -141,7 +141,30 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 		} else if messageType == "notification" {
-			log.Print("AYO GOT A WEBHOOK!!!!!!!!!!! 🥳")
+			log.Print("Recieved a webhook, verifying...")
+
+			// try to get signature header
+			reqSignature := r.Header.Get("Twitch-Eventsub-Message-Signature")
+
+			if reqSignature != "" {
+
+				body, err := ioutil.ReadAll(r.Body)
+				if err != nil {
+					log.Println("Unable to read webhook body :(")
+					log.Println("Aborting recieved webhook verification...")
+					return
+				}
+
+				if verifySignature(r.Header.Get("Twitch-Eventsub-Message-Id"), r.Header.Get("Twitch-Eventsub-Message-Timestamp"), string(body), reqSignature) {
+					log.Println("Webhook verified!")
+
+					// confirm to twitch that webhook has been recieved and processed
+					w.WriteHeader(200)
+
+					return
+				}
+			}
+
 		} else {
 			// Got a POST with the twitch header, but the header message is unknown
 			log.Println("Recieved POST from (supposedly) Twitch with an unknown message type: " + messageType)

@@ -27,6 +27,17 @@ type Channel struct {
 	StartedAt   string `json:"started_at"`
 }
 
+type Stream struct {
+	Data []struct {
+		UserLogin     string `json:"user_login"`
+		UserName      string `json:"user_name"`
+		GameName      string `json:"game_name"`
+		Type          string `json:"type"`
+		Title         string `json:"title"`
+		Thumbnail_url string `json:"thumbnail_url"`
+	} `json:"data"`
+}
+
 type twitchUserSearch struct {
 	Data []struct {
 		ID string `json:"id"`
@@ -80,4 +91,17 @@ func ChannelIDExists(streamerID string, channelID string) bool {
 		}
 	}
 	return false
+}
+
+func GetStreamDetails(streamerID string) (Stream, error) {
+	var stream Stream
+	URL := constants.URLTwitchStreamInfo + "?user_id=" + streamerID
+
+	err := HandleRequest(URL, http.MethodGet, &stream)
+	if err != nil {
+		log.Println("Unable to get stream information from Twitch")
+		return Stream{}, err
+	}
+
+	return stream, nil
 }

@@ -10,7 +10,10 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 	"twitch-discord-bot/constants"
+	"twitch-discord-bot/db"
 	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
@@ -19,9 +22,11 @@ import (
 // bot session for sending messages and such
 var discordSession *discordgo.Session
 
-type createWebhook struct {
+var creationMap map[string]func(bool)
+
+type webhook struct {
 	Type      string `json:"type"`
-	Version   int    `json:"version"`
+	Version   string `json:"version"`
 	Condition struct {
 		BradcasterUserId string `json:"broadcaster_user_id"`
 	} `json:"condition"`
@@ -39,22 +44,39 @@ type creationConfirmation struct {
 }
 
 type creationVerification struct {
-	Challenge string `json:"challenge"`
+	Challenge    string  `json:"challenge"`
+	Subscription webhook `json:"subscription"`
+}
+
+type recievedWebook struct {
+	Subscription webhook `json:"subscription"`
 }
 
 func StartListener(session *discordgo.Session) {
+	creationMap = make(map[string]func(bool))
 	discordSession = session
 	http.HandleFunc("/", requestHandler)
 	log.Println("Subscription functionality enabled, now listening on port ", util.Config.Port)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(util.Config.Port), nil))
 }
 
-func CreateSubscription(userId string, subType string) {
+func CreateSubscription(userId string, subType string, callBackFunc func(bool)) {
+	creationMap[userId] = callBackFunc
+
 	log.Println("Trying to add a new webhook for user: " + userId + " :D")
 
-	body := new(createWebhook)
+	_, err := db.GetChannelIdsByStreamerID(userId)
+	if err != nil {
+		log.Println("Webhook for this streamer does not exist, trying to create...")
+	} else {
+		creationMap[userId](true)
+		delete(creationMap, userId)
+		return
+	}
+
+	body := new(webhook)
 	// defaults for each req
-	body.Version = 1
+	body.Version = "1"
 	body.Transport.Method = "webhook"
 	body.Transport.Callback = util.Config.CallbackUrl
 	// secret should probably be unique for the individual subscriptions, but this is better than nothing
@@ -68,7 +90,8 @@ func CreateSubscription(userId string, subType string) {
 	json, err := json.Marshal(body)
 	if err != nil {
 		log.Println("Error marshalling json, webhook not registered")
-		return
+		creationMap[userId](false)
+		delete(creationMap, userId)
 	}
 
 	// do request to twitch to request webhook
@@ -76,16 +99,30 @@ func CreateSubscription(userId string, subType string) {
 	err = util.HandleRequest(constants.UrlTwitchWebhooks, http.MethodPost, &response, json)
 	if err != nil {
 		log.Println("Error while doing request to Twitch API, webhook not registered")
-		return
+		creationMap[userId](false)
+		delete(creationMap, userId)
 	}
 
 	// hopefully get verification pending response
 	if response.Data[0].Status == "webhook_callback_verification_pending" {
 		log.Println("Webhook subscription request successful. Verifying...")
+
+		// if it's still in map after 60 seconds, something failed and it's time to abort
+		time.AfterFunc(1*time.Minute, func() {
+			log.Println("uh heya")
+			if _, ok := creationMap[userId]; ok {
+				creationMap[userId](false)
+				delete(creationMap, userId)
+			}
+		})
 	} else if response.Data[0].Status != "" {
 		log.Println("Twitch did not like the webhook subscription request :(")
+		creationMap[userId](false)
+		delete(creationMap, userId)
 	} else {
 		log.Println("Something went wrong trying to requ webhook subscription")
+		creationMap[userId](false)
+		delete(creationMap, userId)
 	}
 }
 
@@ -123,6 +160,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 					var verificationReq creationVerification
 					err = json.Unmarshal([]byte(body), &verificationReq)
 					if err != nil {
+						log.Print(err)
 						log.Println("Unable to parse request body from verification request")
 						log.Println("Aborting verification...")
 						return
@@ -134,6 +172,10 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 					// ayo we did it
 					log.Println("Webhook subscription added! :D")
+					if val, ok := creationMap[verificationReq.Subscription.Condition.BradcasterUserId]; ok {
+						val(true)
+						delete(creationMap, verificationReq.Subscription.Condition.BradcasterUserId)
+					}
 					return
 				} else {
 					log.Println("Signatures do not match :O")
@@ -166,6 +208,74 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 					// confirm to twitch that webhook has been recieved and processed
 					w.WriteHeader(200)
+
+					// get json from webhook request
+					var recWebhook recievedWebook
+					err = json.Unmarshal([]byte(body), &recWebhook)
+					if err != nil {
+						log.Println("Unable to parse request body from webhook")
+						log.Println("Aborting trying to send notification")
+						return
+					}
+
+					log.Println(recWebhook.Subscription.Condition.BradcasterUserId)
+					channels, err := db.GetChannelIdsByStreamerID(recWebhook.Subscription.Condition.BradcasterUserId)
+					if err != nil {
+						log.Println("Unable to get channels for streamer, no notications sent")
+						log.Println("If you see this often, there might be some discrepency between subscriptions and firebase")
+						return
+					} else if len(channels) == 0 {
+						log.Println("No channels registered for streamer, no notications sent")
+						log.Println("If you see this often, there might be some discrepency between subscriptions and firebase")
+						return
+					}
+
+					stream, err := util.GetStreamDetails(recWebhook.Subscription.Condition.BradcasterUserId)
+					if len(stream.Data) == 0 || err != nil {
+						log.Println("Unable to get stream data, maybe they didn't actually go live? :O")
+						return
+					}
+
+					// send notifications to channels
+					for i := range channels {
+
+						// create cool discord embed
+						var em discordgo.MessageEmbed
+						em.Type = discordgo.EmbedType("rich")
+						em.URL = constants.URLTwitchStream + stream.Data[0].UserLogin
+						em.Color = 1
+
+						if stream.Data[0].GameName == "" {
+							em.Fields = []*discordgo.MessageEmbedField{{Name: "Game", Value: "No game", Inline: true}}
+						} else {
+							em.Fields = []*discordgo.MessageEmbedField{{Name: "Game", Value: stream.Data[0].GameName, Inline: true}}
+						}
+
+						if stream.Data[0].Title == "" {
+							em.Title = "Stream"
+						} else {
+							em.Title = stream.Data[0].Title
+						}
+
+						thumbnailUrl := stream.Data[0].Thumbnail_url
+						thumbnailUrl = strings.Replace(thumbnailUrl, "{width}", "640", -1)
+						thumbnailUrl = strings.Replace(thumbnailUrl, "{height}", "480", -1)
+
+						em.Image = &discordgo.MessageEmbedImage{
+							URL: thumbnailUrl,
+						}
+
+						// try to send noticiations
+						_, err := discordSession.ChannelMessageSend(channels[i], stream.Data[0].UserName+" just went live!")
+						if err != nil {
+							log.Println("Unable to send notification to channel " + channels[i])
+						}
+						_, err = discordSession.ChannelMessageSendEmbed(channels[i], &em)
+						if err != nil {
+							log.Println(err)
+							log.Println("Unable to send embed to channel " + channels[i])
+						}
+					}
 
 					return
 				}

@@ -35,15 +35,15 @@ func TestSearchByName(t *testing.T) {
 			true,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := SearchByName(tt.args.searchName, tt.args.channels)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("SearchByName() error = %v, wantErr %v", err, tt.wantErr)
+	for i := range tests {
+		t.Run(tests[i].name, func(t *testing.T) {
+			got, err := SearchByName(tests[i].args.searchName, tests[i].args.channels)
+			if (err != nil) != tests[i].wantErr {
+				t.Errorf("SearchByName() error = %v, wantErr %v", err, tests[i].wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("SearchByName() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(got, tests[i].want) {
+				t.Errorf("SearchByName() = %v, want %v", got, tests[i].want)
 			}
 		})
 	}
@@ -61,15 +61,15 @@ func TestGetUserID(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetUserID(tt.args.username)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetUserID() error = %v, wantErr %v", err, tt.wantErr)
+	for i := range tests {
+		t.Run(tests[i].name, func(t *testing.T) {
+			got, err := GetUserID(tests[i].args.username)
+			if (err != nil) != tests[i].wantErr {
+				t.Errorf("GetUserID() error = %v, wantErr %v", err, tests[i].wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("GetUserID() = %v, want %v", got, tt.want)
+			if got != tests[i].want {
+				t.Errorf("GetUserID() = %v, want %v", got, tests[i].want)
 			}
 		})
 	}

@@ -86,9 +86,13 @@ func main() {
 		}
 	}
 
-	// close session when bot is stopeed
+	// close session when bot is stopped
 	defer func() {
-		err := session.Close()
+		err := db.CloseClient()
+		if err != nil {
+			log.Printf("Could not close Client: %v", err.Error())
+		}
+		err = session.Close()
 		if err != nil {
 			log.Println("unable to gracefully close session")
 		}

@@ -18,8 +18,8 @@ var (
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "Username",
-				Description: "String option",
+				Name:        "username",
+				Description: "A twitch username",
 				Required:    true,
 			},
 		},

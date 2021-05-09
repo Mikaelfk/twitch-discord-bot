@@ -30,10 +30,11 @@ func TestHandleRequest(t *testing.T) {
 			true,
 		},
 	}
-	for i := range tests {
-		t.Run(tests[i].name, func(t *testing.T) {
-			if err := HandleRequest(tests[i].args.url, tests[i].args.method, tests[i].args.resType); (err != nil) != tests[i].wantErr {
-				t.Errorf("HandleRequest() error = %v, wantErr %v", err, tests[i].wantErr)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if err := HandleRequest(tt.args.url, tt.args.method, tt.args.resType); (err != nil) != tt.wantErr {
+				t.Errorf("HandleRequest() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

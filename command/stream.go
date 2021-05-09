@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"twitch-discord-bot/constants"
+	"twitch-discord-bot/twitchapi"
 	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
@@ -83,7 +84,7 @@ var (
 				URL += "&" + constants.ParaLanguage + i.Data.Options[k].StringValue()
 			} else if i.Data.Options[k].Name == streamCommand.Options[1].Name {
 
-				games, err := findGames(i.Data.Options[k].StringValue(), 1)
+				games, err := twitchapi.FindGames(i.Data.Options[k].StringValue(), 1)
 				if err != nil {
 					util.DiscordBotResponder(constants.BotUnexpectedErrorMsg, s, i)
 					return

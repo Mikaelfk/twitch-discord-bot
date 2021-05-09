@@ -109,5 +109,10 @@ func InitDB() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// defer client.Close()
+}
+
+// CloseClient closes the firestore client connection
+func CloseClient() error {
+	err := client.Close()
+	return err
 }

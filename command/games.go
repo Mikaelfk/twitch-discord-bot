@@ -1,23 +1,13 @@
 package command
 
 import (
-	"strconv"
 	"strings"
 	"twitch-discord-bot/constants"
+	"twitch-discord-bot/twitchapi"
 	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
 )
-
-type game struct {
-	ArtURL string `json:"box_art_url"`
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-}
-
-type gamesData struct {
-	Data []game `json:"data"`
-}
 
 // Some constants
 const gamesCommandWord = "games"
@@ -57,7 +47,7 @@ var (
 		}
 		var content = ""
 
-		games, err := findGames(i.Data.Options[0].StringValue(), num)
+		games, err := twitchapi.FindGames(i.Data.Options[0].StringValue(), num)
 		if err != nil {
 			content = constants.BotUnexpectedErrorMsg
 		} else if len(games.Data) == 0 {
@@ -85,16 +75,4 @@ var (
 func RegisterGames(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, gamesCommand)
 	commandHandlers[gamesCommandWord] = gamesCommandHandler
-}
-
-// findGames finds the 'first' games that is somewhat similar to gameName
-func findGames(gameName string, first int) (gamesData, error) {
-	// Replaces possible spaces with "-" (dashes) before calling the handleRequest method
-	gameName = strings.Join(strings.Split(gameName, " "), "-")
-	URL := constants.URLTwitchGames + gameName + "&first=" + strconv.Itoa(first)
-
-	var data gamesData
-	err := util.HandleRequest(URL, "GET", &data)
-
-	return data, err
 }

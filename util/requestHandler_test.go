@@ -20,12 +20,12 @@ func TestHandleRequest(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"Test Handle Request succeed",
+			"Test HandleRequest succeed",
 			args{url, http.MethodGet, testResponse},
 			false,
 		},
 		{
-			"Test Handle Request fail",
+			"Test HandleRequest fail",
 			args{"", http.MethodGet, testResponse},
 			true,
 		},

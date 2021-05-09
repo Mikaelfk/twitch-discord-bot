@@ -13,17 +13,18 @@ type game struct {
 	Name   string `json:"name"`
 }
 
-type gamesData struct {
+// GamesData is used to store data about games gotten from the Twitch API
+type GamesData struct {
 	Data []game `json:"data"`
 }
 
 // FindGames finds the 'first' games that is somewhat similar to gameName
-func FindGames(gameName string, first int) (gamesData, error) {
+func FindGames(gameName string, first int) (GamesData, error) {
 	// Replaces possible spaces with "-" (dashes) before calling the handleRequest method
 	gameName = strings.Join(strings.Split(gameName, " "), "-")
 	URL := constants.URLTwitchGames + gameName + "&first=" + strconv.Itoa(first)
 
-	var data gamesData
+	var data GamesData
 	err := util.HandleRequest(URL, "GET", &data)
 
 	return data, err

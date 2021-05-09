@@ -23,13 +23,13 @@ func TestSearchByName(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"Test 1",
+			"Test Search By Name succeed",
 			args{"testname", twitchChannels},
 			channel,
 			false,
 		},
 		{
-			"Test 2",
+			"Test Search By Name fail",
 			args{"random name", twitchChannels},
 			Channel{},
 			true,
@@ -51,6 +51,10 @@ func TestSearchByName(t *testing.T) {
 }
 
 func TestGetUserID(t *testing.T) {
+	err := LoadConfig()
+	if err != nil {
+		t.Errorf("Could not load configuration, %v", err)
+	}
 	type args struct {
 		username string
 	}
@@ -60,7 +64,24 @@ func TestGetUserID(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"Test GetUserID succeed 1",
+			args{"twitch"},
+			"12826",
+			false,
+		},
+		{
+			"Test GetUserID succeed 2",
+			args{"ukhureaper"},
+			"45432109",
+			false,
+		},
+		{
+			"Test GetUserID fail",
+			args{""},
+			"",
+			true,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

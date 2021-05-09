@@ -80,7 +80,8 @@ func main() {
 	// possibly enable subscription functionality
 	if util.Config.EnableSubscriptionsFunctionality {
 		log.Println("Enabeling subscription functionality :O")
-		go twitchapi.StartListener()
+		command.RegisterSubscribe(&commandDefinitions, commandHandlers)
+		go twitchapi.StartListener(session)
 	} else {
 		log.Println("Subscription functionality disabled :(")
 	}

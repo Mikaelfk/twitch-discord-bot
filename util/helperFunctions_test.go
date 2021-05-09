@@ -6,15 +6,15 @@ import (
 )
 
 func TestSearchByName(t *testing.T) {
-	type args struct {
-		searchName string
-		channels   TwitchChannels
-	}
-
 	channel := Channel{"en", "TestName", "testname", false, "Test Title", "Test Id", "Test Game", "Test Game Id", "Test Thumbnail", "Test Start Time"}
 	var data []struct{ Channel }
 	data = append(data, struct{ Channel }{channel})
 	twitchChannels := TwitchChannels{data}
+
+	type args struct {
+		searchName string
+		channels   TwitchChannels
+	}
 
 	tests := []struct {
 		name    string
@@ -34,7 +34,6 @@ func TestSearchByName(t *testing.T) {
 			Channel{},
 			true,
 		},
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

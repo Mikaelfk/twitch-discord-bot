@@ -8,18 +8,14 @@ import (
 	"testing"
 )
 
-/*
-JSON message structure used in tests.
-*/
+// JSON message structure used in tests.
 type Message struct {
 	Content        string `json:"content"`
 	FurtherContent string `json:"furtherContent"`
 }
 
-/*
-Starts a local test http server with fixed handler
-*/
-func StartHttpServer() *httptest.Server {
+//Starts a local test http server with fixed handler
+func StartHTTPServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Populate header
 		w.Header().Add("content-type", "application/json")
@@ -30,7 +26,7 @@ func StartHttpServer() *httptest.Server {
 		m := Message{"some content", "some more content"}
 		content, err := json.Marshal(&m)
 		if err != nil {
-			log.Fatal("Error when marshalling: " + err.Error())
+			log.Fatal("Error when marshaling: " + err.Error())
 		}
 		_, err = w.Write(content)
 		if err != nil {
@@ -39,18 +35,14 @@ func StartHttpServer() *httptest.Server {
 	}))
 }
 
-/*
-Tests request handler by direct invocation without networking - to test the handler itself,
-or with networking to emulate TCP-based interaction, but without paths (see switch useHttpServer in test).
-*/
+// Tests the HandleRequest function with the use of local http server with a known response
 func TestHandleRequest(t *testing.T) {
-
 	var err error
 	var message Message
 	var url string
 
 	// - tests network and handler, but abstracts from paths
-	server := StartHttpServer()
+	server := StartHTTPServer()
 	// Ensure the server is closed at the end of the test
 	defer server.Close()
 	// Retrieve URL of test http server

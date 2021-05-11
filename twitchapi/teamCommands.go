@@ -21,7 +21,6 @@ type teamStruct struct {
 		ThumbnailURL       string      `json:"thumbnail_url"`
 		TeamName           string      `json:"team_name"`
 		TeamDisplayName    string      `json:"team_display_name"`
-		ID                 string      `json:"id"`
 	} `json:"data"`
 }
 
@@ -53,6 +52,10 @@ func GetAllTeamMembers(name string) ([]string, error) {
 	var teamMembers []string
 	var teamInfo teamStruct
 
+	if teamInfo.Data == nil {
+		return nil, errors.New("no team found")
+	}
+
 	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamInfo)
 
 	if err != nil {
@@ -72,6 +75,10 @@ func GetLiveTeamMembers(name string) ([]string, error) {
 	var liveTeamMembers []string
 	var teamInfo teamStruct
 	err := util.HandleRequest(constants.URLTwitchGetTeams+name, "GET", &teamInfo)
+
+	if teamInfo.Data == nil {
+		return nil, errors.New("no team found")
+	}
 
 	if err != nil {
 		log.Fatal(err)

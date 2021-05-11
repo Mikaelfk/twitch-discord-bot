@@ -7,6 +7,7 @@ import (
 )
 
 func TestGetLiveTeamMembers(t *testing.T) {
+	util.LoadConfig("../")
 	type args struct {
 		name string
 	}
@@ -17,9 +18,9 @@ func TestGetLiveTeamMembers(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"test tsm false",
-			args{"tsm"},
-			[]string{"nothing"},
+			"A team that does not exist",
+			args{"teamthatwillneverexisthehexd"},
+			nil,
 			true,
 		},
 	}
@@ -39,6 +40,7 @@ func TestGetLiveTeamMembers(t *testing.T) {
 }
 
 func TestGetAllTeamMembers(t *testing.T) {
+	util.LoadConfig("../")
 	type args struct {
 		name string
 	}
@@ -49,15 +51,9 @@ func TestGetAllTeamMembers(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"test tsm members true",
-			args{"tsm"},
-			[]string{},
-			true,
-		},
-		{
-			"test tsm members false",
-			args{"tsm"},
-			[]string{"nothing"},
+			"A team that does not exist",
+			args{"teamthatwillneverexisthehexd"},
+			nil,
 			true,
 		},
 	}
@@ -88,7 +84,7 @@ func TestTeamExist(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"tsm test 1 lol",
+			"A team that exists",
 			args{"tsm"},
 			true,
 			false,

@@ -14,7 +14,7 @@ type Message struct {
 	FurtherContent string `json:"furtherContent"`
 }
 
-//Starts a local test http server with fixed handler
+// Starts a local test http server with fixed handler
 func StartHTTPServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Populate header

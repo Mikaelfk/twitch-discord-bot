@@ -51,12 +51,16 @@ var (
 			for _, v := range streamers {
 				streamersString += v + ", "
 				if index > 60 {
+					streamersString = strings.ReplaceAll(streamersString, "_", "\\_")
+					streamersString = strings.ReplaceAll(streamersString, "*", "\\*")
 					streamersStringArray = append(streamersStringArray, streamersString)
 					streamersString = ""
 					index = -1
 				}
 				index++
 			}
+			streamersString = strings.ReplaceAll(streamersString, "_", "\\_")
+			streamersString = strings.ReplaceAll(streamersString, "*", "\\*")
 			streamersStringArray = append(streamersStringArray, streamersString)
 			// Prints all the streamers that did not fit in the first message
 			for _, v := range streamersStringArray {

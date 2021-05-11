@@ -47,7 +47,7 @@ var (
 		}
 		var content = ""
 
-		games, err := twitchapi.FindGames(i.Data.Options[0].StringValue(), num, "")
+		games, err := twitchapi.FindGames(i.Data.Options[0].StringValue(), num)
 		if err != nil {
 			content = constants.BotUnexpectedErrorMsg
 		} else if len(games.Data) == 0 {

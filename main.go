@@ -7,6 +7,7 @@ import (
 
 	"twitch-discord-bot/command"
 	"twitch-discord-bot/db"
+	"twitch-discord-bot/twitchapi"
 	"twitch-discord-bot/util"
 
 	"github.com/bwmarrin/discordgo"
@@ -67,13 +68,23 @@ func registerCommands() {
 func main() {
 	// just log that bot is running
 	session.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Println("Bot is up (:")
+		log.Println("Bot is up, initializing...")
 	})
 
 	// open session to discord
 	err := session.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
+	}
+
+	// possibly enable subscription functionality
+	if util.Config.EnableSubscriptionsFunctionality {
+		log.Println("Enabeling subscription functionality :O")
+		command.RegisterSubscribe(&commandDefinitions, commandHandlers)
+		command.RegisterUnSubscribe(&commandDefinitions, commandHandlers)
+		go twitchapi.StartListener(session)
+	} else {
+		log.Println("Subscription functionality disabled :(")
 	}
 
 	// register slash-commands
@@ -86,7 +97,9 @@ func main() {
 		}
 	}
 
-	// close session when bot is stopped
+	log.Println("Bot ready for use! (:")
+
+	// close session when bot is stopeed
 	defer func() {
 		err := db.CloseClient()
 		if err != nil {

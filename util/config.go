@@ -17,7 +17,7 @@ type configuration struct {
 	TwitchAuthToken                  string
 	TwitchWebhooksSecret             string
 	EnableSubscriptionsFunctionality bool
-	CallbackUrl                      string
+	CallbackURL                      string
 	Port                             int
 }
 

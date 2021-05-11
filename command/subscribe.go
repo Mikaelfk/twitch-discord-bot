@@ -48,8 +48,6 @@ var (
 		}
 
 		callBackFunction := func(success bool) {
-			log.Println("At least callback works please")
-
 			if success {
 				log.Println("Added subscription for streamer " + fmt.Sprintf("%v", i.Data.Options[0].Value))
 				_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
@@ -64,11 +62,10 @@ var (
 					log.Println("Unable to save subscription in firebase :O")
 					log.Println("If you see this, beware of descrepency in webhooks and notifications")
 				}
-				return
 			} else {
-				log.Println("Internal error, unable to create subcsription for streamer " + fmt.Sprintf("%v", i.Data.Options[0].Value))
+				log.Println("Internal error, unable to create subscription for streamer " + fmt.Sprintf("%v", i.Data.Options[0].Value))
 				_, err = s.FollowupMessageCreate(s.State.User.ID, i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Internal error, unable to create subcsription for streamer",
+					Content: "Internal error, unable to create subscription for streamer",
 				})
 				if err != nil {
 					log.Println("unable to send follow-up message")

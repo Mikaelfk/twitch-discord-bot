@@ -27,14 +27,15 @@ type Channel struct {
 	StartedAt   string `json:"started_at"`
 }
 
+// Stream stores data about a livestream
 type Stream struct {
 	Data []struct {
-		UserLogin     string `json:"user_login"`
-		UserName      string `json:"user_name"`
-		GameName      string `json:"game_name"`
-		Type          string `json:"type"`
-		Title         string `json:"title"`
-		Thumbnail_url string `json:"thumbnail_url"`
+		UserLogin    string `json:"user_login"`
+		UserName     string `json:"user_name"`
+		GameName     string `json:"game_name"`
+		Type         string `json:"type"`
+		Title        string `json:"title"`
+		ThumbnailUrl string `json:"thumbnail_url"`
 	} `json:"data"`
 }
 
@@ -93,6 +94,7 @@ func ChannelIDExists(streamerID string, channelID string) bool {
 	return false
 }
 
+// GetStreamDetails gets details about a currently live stream
 func GetStreamDetails(streamerID string) (Stream, error) {
 	var stream Stream
 	URL := constants.URLTwitchStreamInfo + "?user_id=" + streamerID

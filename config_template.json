@@ -5,6 +5,6 @@
   "TwitchAuthToken":  "",
   "TwitchWebhooksSecret": "",
   "EnableSubscriptionsFunctionality": true,
-  "CallbackUrl:": "",
+  "CallbackURL:": "",
   "Port": 8080
 }

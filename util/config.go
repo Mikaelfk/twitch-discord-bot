@@ -4,6 +4,7 @@ package util
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 )
 
 // Config stores config structs
@@ -18,7 +19,7 @@ type configuration struct {
 
 // LoadConfig loads the config values
 func LoadConfig(path string) error {
-	file, err := os.Open(path + "config.json")
+	file, err := os.Open(filepath.Clean(path) + "config.json")
 	if err != nil {
 		return err
 	}

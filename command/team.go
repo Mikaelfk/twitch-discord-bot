@@ -42,8 +42,6 @@ var (
 			return
 		}
 
-		print("i get here")
-
 		if !exist {
 			util.DiscordBotResponder(constants.BotNoResultsMsg, s, i)
 			return

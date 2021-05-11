@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -206,78 +207,13 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 				if verifySignature(r.Header.Get("Twitch-Eventsub-Message-Id"), r.Header.Get("Twitch-Eventsub-Message-Timestamp"), string(body), reqSignature) {
 					log.Println("Webhook verified!")
 
-					// confirm to twitch that webhook has been recieved and processed
+					// confirm to twitch that webhook has been recieved and verified
 					w.WriteHeader(200)
 
-					// get json from webhook request
-					var recWebhook recievedWebook
-					err = json.Unmarshal([]byte(body), &recWebhook)
+					err := handleWebhook(w, body)
 					if err != nil {
-						log.Println("Unable to parse request body from webhook")
-						log.Println("Aborting trying to send notification")
-						return
+						log.Println("Error occured, no notifications sent :(")
 					}
-
-					log.Println(recWebhook.Subscription.Condition.BradcasterUserId)
-					channels, err := db.GetChannelIdsByStreamerID(recWebhook.Subscription.Condition.BradcasterUserId)
-					if err != nil {
-						log.Println("Unable to get channels for streamer, no notications sent")
-						log.Println("If you see this often, there might be some discrepency between subscriptions and firebase")
-						return
-					} else if len(channels) == 0 {
-						log.Println("No channels registered for streamer, no notications sent")
-						log.Println("If you see this often, there might be some discrepency between subscriptions and firebase")
-						return
-					}
-
-					stream, err := util.GetStreamDetails(recWebhook.Subscription.Condition.BradcasterUserId)
-					if len(stream.Data) == 0 || err != nil {
-						log.Println("Unable to get stream data, maybe they didn't actually go live? :O")
-						return
-					}
-
-					// send notifications to channels
-					for i := range channels {
-
-						// create cool discord embed
-						var em discordgo.MessageEmbed
-						em.Type = discordgo.EmbedType("rich")
-						em.URL = constants.URLTwitchStream + stream.Data[0].UserLogin
-						em.Color = 1
-
-						if stream.Data[0].GameName == "" {
-							em.Fields = []*discordgo.MessageEmbedField{{Name: "Game", Value: "No game", Inline: true}}
-						} else {
-							em.Fields = []*discordgo.MessageEmbedField{{Name: "Game", Value: stream.Data[0].GameName, Inline: true}}
-						}
-
-						if stream.Data[0].Title == "" {
-							em.Title = "Stream"
-						} else {
-							em.Title = stream.Data[0].Title
-						}
-
-						thumbnailUrl := stream.Data[0].Thumbnail_url
-						thumbnailUrl = strings.Replace(thumbnailUrl, "{width}", "640", -1)
-						thumbnailUrl = strings.Replace(thumbnailUrl, "{height}", "480", -1)
-
-						em.Image = &discordgo.MessageEmbedImage{
-							URL: thumbnailUrl,
-						}
-
-						// try to send noticiations
-						_, err := discordSession.ChannelMessageSend(channels[i], stream.Data[0].UserName+" just went live!")
-						if err != nil {
-							log.Println("Unable to send notification to channel " + channels[i])
-						}
-						_, err = discordSession.ChannelMessageSendEmbed(channels[i], &em)
-						if err != nil {
-							log.Println(err)
-							log.Println("Unable to send embed to channel " + channels[i])
-						}
-					}
-
-					return
 				}
 			}
 
@@ -286,6 +222,80 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Recieved POST from (supposedly) Twitch with an unknown message type: " + messageType)
 		}
 	}
+}
+
+// handleWebhook will check contents of the webhook, and send notifications to subscribed channels if there are any
+func handleWebhook(w http.ResponseWriter, body []byte) error {
+	// get json from webhook request
+	var recWebhook recievedWebook
+	err := json.Unmarshal([]byte(body), &recWebhook)
+	if err != nil {
+		log.Println("Unable to parse request body from webhook")
+		log.Println("Aborting trying to send notification")
+		return err
+	}
+
+	// try to get subscirbed channels from firestore
+	log.Println(recWebhook.Subscription.Condition.BradcasterUserId)
+	channels, err := db.GetChannelIdsByStreamerID(recWebhook.Subscription.Condition.BradcasterUserId)
+	if err != nil {
+		log.Println("Unable to get channels for streamer, no notications sent")
+		log.Println("If you see this often, there might be some discrepency between subscriptions and firebase")
+		return err
+	} else if len(channels) == 0 {
+		log.Println("No channels registered for streamer, no notications sent")
+		log.Println("If you see this often, there might be some discrepency between subscriptions and firebase")
+		return errors.New("no channels registered for streamer")
+	}
+
+	// check if streamer is live, so no spam if they go online then quickly offline again
+	stream, err := util.GetStreamDetails(recWebhook.Subscription.Condition.BradcasterUserId)
+	if len(stream.Data) == 0 || err != nil {
+		log.Println("Unable to get stream data, maybe they didn't actually go live? :O")
+		return errors.New("unable to get stream data")
+	}
+
+	// send notifications to channels
+	for i := range channels {
+
+		// create cool discord embed
+		var em discordgo.MessageEmbed
+		em.Type = discordgo.EmbedType("rich")
+		em.URL = constants.URLTwitchStream + stream.Data[0].UserLogin
+		em.Color = 1
+
+		if stream.Data[0].GameName == "" {
+			em.Fields = []*discordgo.MessageEmbedField{{Name: "Game", Value: "No game", Inline: true}}
+		} else {
+			em.Fields = []*discordgo.MessageEmbedField{{Name: "Game", Value: stream.Data[0].GameName, Inline: true}}
+		}
+
+		if stream.Data[0].Title == "" {
+			em.Title = "Stream"
+		} else {
+			em.Title = stream.Data[0].Title
+		}
+
+		// set dimensions for thumbnail
+		thumbnailUrl := stream.Data[0].Thumbnail_url
+		thumbnailUrl = strings.Replace(thumbnailUrl, "{width}", "640", -1)
+		thumbnailUrl = strings.Replace(thumbnailUrl, "{height}", "480", -1)
+
+		em.Image = &discordgo.MessageEmbedImage{
+			URL: thumbnailUrl,
+		}
+
+		// try to send noticiations
+		_, err := discordSession.ChannelMessageSend(channels[i], stream.Data[0].UserName+" just went live!")
+		if err != nil {
+			log.Println("Unable to send notification to channel " + channels[i])
+		}
+		_, err = discordSession.ChannelMessageSendEmbed(channels[i], &em)
+		if err != nil {
+			log.Println("Unable to send embed to channel " + channels[i])
+		}
+	}
+	return nil
 }
 
 func verifySignature(messageIDHeader string, timestampMessage string, body string, reqSignature string) bool {

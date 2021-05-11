@@ -11,10 +11,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-//
-// Example command
-//
-
 var (
 	// define name and description for command
 	subscribeCommmand = discordgo.ApplicationCommand{

@@ -19,7 +19,7 @@ type configuration struct {
 
 // LoadConfig loads the config values
 func LoadConfig(path string) error {
-	file, err := os.Open(filepath.Clean(path) + "config.json")
+	file, err := os.Open(filepath.Join(filepath.Clean(path), "config.json"))
 	if err != nil {
 		return err
 	}

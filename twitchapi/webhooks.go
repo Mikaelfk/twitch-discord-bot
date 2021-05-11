@@ -63,16 +63,16 @@ func StartListener(session *discordgo.Session) {
 }
 
 // CreateSubscription will try to create a webhook for a specified streamer
-func CreateSubscription(userId string, subType string, callBackFunc func(bool)) {
-	creationMap[userId] = callBackFunc
+func CreateSubscription(userID string, subType string, callBackFunc func(bool)) {
+	creationMap[userID] = callBackFunc
 
-	log.Println("Trying to add a new webhook for user: " + userId + " :D")
+	log.Println("Trying to add a new webhook for user: " + userID + " :D")
 
-	_, err := db.GetChannelIdsByStreamerID(userId)
+	_, err := db.GetChannelIdsByStreamerID(userID)
 	if err != nil {
 		log.Println("Webhook for this streamer does not exist, trying to create...")
 	} else {
-		creationMap[userId](true)
+		creationMap[userID](true)
 		return
 	}
 
@@ -84,13 +84,13 @@ func CreateSubscription(userId string, subType string, callBackFunc func(bool)) 
 	body.Transport.Secret = util.Config.TwitchWebhooksSecret
 	// req specific
 	body.Type = subType
-	body.Condition.BradcasterUserID = userId
+	body.Condition.BradcasterUserID = userID
 
 	// JSON IT!
 	json, err := json.Marshal(body)
 	if err != nil {
 		log.Println("Error marshaling json, webhook not registered")
-		creationMap[userId](false)
+		creationMap[userID](false)
 	}
 
 	// do request to twitch to request webhook
@@ -98,7 +98,7 @@ func CreateSubscription(userId string, subType string, callBackFunc func(bool)) 
 	err = util.HandleRequest(constants.ULTwitchWebhooks, http.MethodPost, &response, json)
 	if err != nil {
 		log.Println("Error while doing request to Twitch API, webhook not registered")
-		creationMap[userId](false)
+		creationMap[userID](false)
 	}
 
 	switch status := response.Data[0].Status; {
@@ -107,16 +107,16 @@ func CreateSubscription(userId string, subType string, callBackFunc func(bool)) 
 
 		// if it's still in map after 60 seconds, something failed and it's time to abort
 		time.AfterFunc(1*time.Minute, func() {
-			if _, ok := creationMap[userId]; ok {
-				creationMap[userId](false)
+			if _, ok := creationMap[userID]; ok {
+				creationMap[userID](false)
 			}
 		})
 	case status != "webhook_callback_verification_pending":
 		log.Println("Twitch did not like the webhook subscription request :(")
-		creationMap[userId](false)
+		creationMap[userID](false)
 	default:
 		log.Println("Something went wrong trying to requ webhook subscription")
-		creationMap[userId](false)
+		creationMap[userID](false)
 	}
 }
 
@@ -277,7 +277,6 @@ func verifySignature(messageIDHeader string, timestampMessage string, body strin
 	if signature != reqSignature {
 		log.Println("Signatures do not match :O")
 		return false
-	} else {
-		return true
 	}
+	return true
 }

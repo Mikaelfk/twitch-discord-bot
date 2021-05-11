@@ -6,23 +6,6 @@ import (
 	"twitch-discord-bot/util"
 )
 
-// Message struct, ønsket respons
-type Message struct {
-}
-
-// Lager lokal https server
-// Gjøres request til senere
-// Returnerer en json respons lik twitch apien...
-func startHTTPServer() {
-
-}
-
-// Test funksjon
-// Lage http server, defer close
-// server.URL = request url
-// En handler request med et nytt Message object
-// Sjekk om dataen du får ut er riktig
-
 func TestGetLiveTeamMembers(t *testing.T) {
 	type args struct {
 		name string
@@ -94,9 +77,7 @@ func TestGetAllTeamMembers(t *testing.T) {
 }
 
 func TestTeamExist(t *testing.T) {
-
 	util.LoadConfig("../")
-
 	type args struct {
 		name string
 	}

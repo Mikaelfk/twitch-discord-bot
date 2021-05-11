@@ -196,7 +196,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 func respondToVerification(w http.ResponseWriter, body []byte) {
 	// get json from verification request
 	var verificationReq creationVerification
-	err := json.Unmarshal([]byte(body), &verificationReq)
+	err := json.Unmarshal(body, &verificationReq)
 	if err != nil {
 		log.Print(err)
 		log.Println("Unable to parse request body from verification request")
@@ -206,7 +206,11 @@ func respondToVerification(w http.ResponseWriter, body []byte) {
 
 	// return challenge
 	w.WriteHeader(200)
-	w.Write([]byte(verificationReq.Challenge))
+	_, err = w.Write([]byte(verificationReq.Challenge))
+	if err != nil {
+		log.Println("Unable to write challenge back to Twitch")
+		return
+	}
 
 	// ayo we did it
 	log.Println("Webhook subscription added! :D")
@@ -220,7 +224,7 @@ func respondToVerification(w http.ResponseWriter, body []byte) {
 func handleWebhook(w http.ResponseWriter, body []byte) error {
 	// get json from webhook request
 	var recWebhook receivedWebook
-	err := json.Unmarshal([]byte(body), &recWebhook)
+	err := json.Unmarshal(body, &recWebhook)
 	if err != nil {
 		log.Println("Unable to parse request body from webhook")
 		log.Println("Aborting trying to send notification")
@@ -267,7 +271,7 @@ func handleWebhook(w http.ResponseWriter, body []byte) error {
 		}
 
 		// set dimensions for thumbnail
-		thumbnailURL := stream.Data[0].ThumbnailUrl
+		thumbnailURL := stream.Data[0].ThumbnailURL
 		thumbnailURL = strings.ReplaceAll(thumbnailURL, "{width}", "640")
 		thumbnailURL = strings.ReplaceAll(thumbnailURL, "{height}", "480")
 
@@ -294,7 +298,11 @@ func verifySignature(messageIDHeader string, timestampMessage string, body strin
 
 	// create hash with secret
 	hmac := hmac.New(sha256.New, []byte(util.Config.TwitchWebhooksSecret))
-	hmac.Write(hmacMessage)
+	_, err := hmac.Write(hmacMessage)
+	if err != nil {
+		log.Println("Unable to hash message")
+		return false
+	}
 	signature := fmt.Sprintf("sha256=%s", hex.EncodeToString(hmac.Sum(nil)))
 	return signature == reqSignature
 }

@@ -15,7 +15,6 @@ import (
 //
 // IMPORTANT: Do not include spaces in the URL as it will make this method return EOF error.
 func HandleRequest(url string, method string, resType interface{}, reqBody ...[]byte) error {
-
 	// only valid methods allowed. Can add more methods later if need be
 	if method != http.MethodGet && method != http.MethodPost && method != http.MethodPatch && method != http.MethodDelete {
 		return errors.New("invalid method")

@@ -35,7 +35,7 @@ type Stream struct {
 		GameName     string `json:"game_name"`
 		Type         string `json:"type"`
 		Title        string `json:"title"`
-		ThumbnailUrl string `json:"thumbnail_url"`
+		ThumbnailURL string `json:"thumbnail_url"`
 	} `json:"data"`
 }
 

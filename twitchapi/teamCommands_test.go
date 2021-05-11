@@ -41,6 +41,7 @@ func TestGetLiveTeamMembers(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := GetLiveTeamMembers(tt.args.name)
 			if (err != nil) != tt.wantErr {
@@ -78,6 +79,7 @@ func TestGetAllTeamMembers(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := GetAllTeamMembers(tt.args.name)
 			if (err != nil) != tt.wantErr {
@@ -112,6 +114,7 @@ func TestTeamExist(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := TeamExist(tt.args.name)
 			if (err != nil) != tt.wantErr {

@@ -63,7 +63,7 @@ var (
 	}
 )
 
-// RegisterSubscribe function for registering command for the bot to serve
+// RegisterUnSubscribe function for registering command for the bot to serve
 func RegisterUnSubscribe(commands *[]discordgo.ApplicationCommand, commandHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
 	*commands = append(*commands, unSubscribeCommmand)
 	commandHandlers["unsubscribe"] = unSubscribeCommandHandler

@@ -19,13 +19,16 @@ type GamesData struct {
 }
 
 // FindGames finds the 'first' games that is somewhat similar to gameName
-func FindGames(gameName string, first int) (GamesData, error) {
+func FindGames(gameName string, first int, url string) (GamesData, error) {
 	// Replaces possible spaces with "-" (dashes) before calling the handleRequest method
 	gameName = strings.Join(strings.Split(gameName, " "), "-")
-	URL := constants.URLTwitchGames + gameName + "&first=" + strconv.Itoa(first)
+	if url == "" {
+		url = constants.URLTwitchGames + gameName + "&first=" + strconv.Itoa(first)
+	}
+
 
 	var data GamesData
-	err := util.HandleRequest(URL, "GET", &data)
+	err := util.HandleRequest(url, "GET", &data)
 
 	return data, err
 }

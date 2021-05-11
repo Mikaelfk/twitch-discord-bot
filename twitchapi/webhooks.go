@@ -157,27 +157,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 					// hell yeah it's verification time
 					log.Println("Signatures match! Responding to verification request :D")
 
-					// get json from verification request
-					var verificationReq creationVerification
-					err = json.Unmarshal([]byte(body), &verificationReq)
-					if err != nil {
-						log.Print(err)
-						log.Println("Unable to parse request body from verification request")
-						log.Println("Aborting verification...")
-						return
-					}
-
-					// return challenge
-					w.WriteHeader(200)
-					w.Write([]byte(verificationReq.Challenge))
-
-					// ayo we did it
-					log.Println("Webhook subscription added! :D")
-					if val, ok := creationMap[verificationReq.Subscription.Condition.BradcasterUserId]; ok {
-						val(true)
-						delete(creationMap, verificationReq.Subscription.Condition.BradcasterUserId)
-					}
-					return
+					respondToVerification(w, body)
 				} else {
 					log.Println("Signatures do not match :O")
 					log.Println("Aborting verification...")
@@ -221,6 +201,29 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 			// Got a POST with the twitch header, but the header message is unknown
 			log.Println("Recieved POST from (supposedly) Twitch with an unknown message type: " + messageType)
 		}
+	}
+}
+
+func respondToVerification(w http.ResponseWriter, body []byte) {
+	// get json from verification request
+	var verificationReq creationVerification
+	err := json.Unmarshal([]byte(body), &verificationReq)
+	if err != nil {
+		log.Print(err)
+		log.Println("Unable to parse request body from verification request")
+		log.Println("Aborting verification...")
+		return
+	}
+
+	// return challenge
+	w.WriteHeader(200)
+	w.Write([]byte(verificationReq.Challenge))
+
+	// ayo we did it
+	log.Println("Webhook subscription added! :D")
+	if val, ok := creationMap[verificationReq.Subscription.Condition.BradcasterUserId]; ok {
+		val(true)
+		delete(creationMap, verificationReq.Subscription.Condition.BradcasterUserId)
 	}
 }
 

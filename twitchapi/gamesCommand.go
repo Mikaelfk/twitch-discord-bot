@@ -26,7 +26,6 @@ func FindGames(gameName string, first int, url string) (GamesData, error) {
 		url = constants.URLTwitchGames + gameName + "&first=" + strconv.Itoa(first)
 	}
 
-
 	var data GamesData
 	err := util.HandleRequest(url, "GET", &data)
 

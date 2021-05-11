@@ -84,7 +84,7 @@ var (
 				URL += "&" + constants.ParaLanguage + i.Data.Options[k].StringValue()
 			} else if i.Data.Options[k].Name == streamCommand.Options[1].Name {
 
-				games, err := twitchapi.FindGames(i.Data.Options[k].StringValue(), 1, "")
+				games, err := twitchapi.FindGames(i.Data.Options[k].StringValue(), 1)
 				if err != nil {
 					util.DiscordBotResponder(constants.BotUnexpectedErrorMsg, s, i)
 					return

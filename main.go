@@ -81,6 +81,7 @@ func main() {
 	if util.Config.EnableSubscriptionsFunctionality {
 		log.Println("Enabeling subscription functionality :O")
 		command.RegisterSubscribe(&commandDefinitions, commandHandlers)
+		command.RegisterUnSubscribe(&commandDefinitions, commandHandlers)
 		go twitchapi.StartListener(session)
 	} else {
 		log.Println("Subscription functionality disabled :(")

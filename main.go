@@ -26,7 +26,7 @@ var session *discordgo.Session
 
 // try to load config
 func init() {
-	err := util.LoadConfig()
+	err := util.LoadConfig("")
 	db.InitDB()
 	if err != nil {
 		log.Fatalf("Unable to load config: %v", err)

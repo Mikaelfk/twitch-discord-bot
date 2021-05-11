@@ -51,7 +51,7 @@ func TestSearchByName(t *testing.T) {
 }
 
 func TestGetUserID(t *testing.T) {
-	err := LoadConfig()
+	err := LoadConfig("../")
 	if err != nil {
 		t.Errorf("Could not load configuration, %v", err)
 	}

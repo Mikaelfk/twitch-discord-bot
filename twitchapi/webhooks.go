@@ -62,6 +62,7 @@ func StartListener(session *discordgo.Session) {
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(util.Config.Port), nil))
 }
 
+// CreateSubscription will try to create a webhook for a specified streamer
 func CreateSubscription(userId string, subType string, callBackFunc func(bool)) {
 	creationMap[userId] = callBackFunc
 
@@ -130,49 +131,40 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 			// try to get signature header
 			reqSignature := r.Header.Get("Twitch-Eventsub-Message-Signature")
-			if reqSignature != "" {
-				// get body bytes
-				body, err := ioutil.ReadAll(r.Body)
-				if err != nil {
-					log.Println("Unable to read request body :(, Aborting verification...")
-					return
-				}
-
-				if verifySignature(r.Header.Get("Twitch-Eventsub-Message-Id"), r.Header.Get("Twitch-Eventsub-Message-Timestamp"), string(body), reqSignature) {
-					log.Println("Signatures match! Responding to verification request :D")
-					respondToVerification(w, body)
-				} else {
-					log.Println("Signatures do not match :O, Aborting verification...")
-					return
-				}
-			} else {
-				log.Println("No signature, aborting verification")
+			// get body bytes
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				log.Println("Unable to read request body :(, Aborting verification...")
 				return
+			}
+
+			if verifySignature(r.Header.Get("Twitch-Eventsub-Message-Id"), r.Header.Get("Twitch-Eventsub-Message-Timestamp"), string(body), reqSignature) {
+				log.Println("Signatures match! Responding to verification request :D")
+				respondToVerification(w, body)
 			}
 		case "notification":
 			log.Print("Received a webhook, verifying...")
 
 			// try to get signature header
 			reqSignature := r.Header.Get("Twitch-Eventsub-Message-Signature")
-			if reqSignature != "" {
-				body, err := ioutil.ReadAll(r.Body)
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				log.Println("Unable to read webhook body :(, aborting received webhook verification...")
+				return
+			}
+
+			if verifySignature(r.Header.Get("Twitch-Eventsub-Message-Id"), r.Header.Get("Twitch-Eventsub-Message-Timestamp"), string(body), reqSignature) {
+				log.Println("Webhook verified!")
+
+				// confirm to twitch that webhook has been received and verified
+				w.WriteHeader(200)
+
+				err := handleWebhook(body)
 				if err != nil {
-					log.Println("Unable to read webhook body :(, aborting received webhook verification...")
-					return
-				}
-
-				if verifySignature(r.Header.Get("Twitch-Eventsub-Message-Id"), r.Header.Get("Twitch-Eventsub-Message-Timestamp"), string(body), reqSignature) {
-					log.Println("Webhook verified!")
-
-					// confirm to twitch that webhook has been received and verified
-					w.WriteHeader(200)
-
-					err := handleWebhook(w, body)
-					if err != nil {
-						log.Println("Error occurred, no notifications sent :(")
-					}
+					log.Println("Error occurred, no notifications sent :(")
 				}
 			}
+
 		default:
 			// Got a POST with the twitch header, but the header message is unknown
 			log.Println("Received POST from (supposedly) Twitch with an unknown message type: " + messageType)
@@ -208,7 +200,7 @@ func respondToVerification(w http.ResponseWriter, body []byte) {
 }
 
 // handleWebhook will check contents of the webhook, and send notifications to subscribed channels if there are any
-func handleWebhook(w http.ResponseWriter, body []byte) error {
+func handleWebhook(body []byte) error {
 	// get json from webhook request
 	var recWebhook receivedWebook
 	err := json.Unmarshal(body, &recWebhook)
@@ -260,7 +252,7 @@ func handleWebhook(w http.ResponseWriter, body []byte) error {
 		em.Image = &discordgo.MessageEmbedImage{URL: thumbnailURL}
 
 		// try to send noticiations
-		if _, err := discordSession.ChannelMessageSend(channels[i], stream.Data[0].UserName+" just went live!"); err != nil {
+		if _, err = discordSession.ChannelMessageSend(channels[i], stream.Data[0].UserName+" just went live!"); err != nil {
 			log.Println("Unable to send notification to channel " + channels[i])
 		}
 		if _, err = discordSession.ChannelMessageSendEmbed(channels[i], &em); err != nil {
@@ -282,5 +274,10 @@ func verifySignature(messageIDHeader string, timestampMessage string, body strin
 		return false
 	}
 	signature := fmt.Sprintf("sha256=%s", hex.EncodeToString(hmac.Sum(nil)))
-	return signature == reqSignature
+	if signature != reqSignature {
+		log.Println("Signatures do not match :O")
+		return false
+	} else {
+		return true
+	}
 }

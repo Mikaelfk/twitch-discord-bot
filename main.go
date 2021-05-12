@@ -48,7 +48,6 @@ func init() {
 func registerCommands() {
 	// register commands
 	command.RegisterPing(&commandDefinitions, commandHandlers)
-	command.RegisterPang(&commandDefinitions, commandHandlers)
 	command.RegisterChannel(&commandDefinitions, commandHandlers)
 	command.RegisterStream(&commandDefinitions, commandHandlers)
 	command.RegisterGames(&commandDefinitions, commandHandlers)

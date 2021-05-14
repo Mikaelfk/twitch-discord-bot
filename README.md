@@ -1,5 +1,7 @@
 # Twitch-Discord Bot
 
+Invite link to a server where you can try it out: [https://discord.gg/WGbmR6TVxE](https://discord.gg/WGbmR6TVxE)
+
 ## Description
 
 The original project plan was to create a Discord Bot that integrates with Twitch. It would function as a bridge between Discord and Twitch for many Discord users, especially Discord server owners. The owners could use it to share news and notifications related to Twitch with hundreds of people simultaneously, making Twitch more accessible for a larger audience. Some of the first ideas of functionality were the ability to get info about streams (live viewers, title, Etc.), information about a particular channel, webhook notifications for when a specific stream goes live, and the ability to notify of drop events. 
